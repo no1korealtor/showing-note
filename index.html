@@ -491,23 +491,12 @@
         <span>⚙️ 환경 설정</span>
         <span style="cursor: pointer; color: #64748b;" onclick="closeModal('settingsModal')">✕</span>
       </div>
-      <div style="margin-bottom: 16px;">
-        <label class="form-label">📍 내 활동 동 목록</label>
-        <div class="chips" id="settingsDongChips"></div>
-        <div style="display:flex; gap:6px; margin-top:8px;">
-          <input type="text" id="newDongText" class="form-input" placeholder="새로운 동 이름 (예: 연남동)">
-          <button type="button" class="btn-top primary" onclick="addDong()">추가</button>
-        </div>
-      </div>
-      <div style="margin-bottom: 16px;">
-        <label class="form-label">기본 시/구 (지도 검색용)</label>
-        <input type="text" id="baseDistrict" class="form-input" onchange="settings.baseDistrict=this.value; saveData();">
-      </div>
-      <div style="margin-bottom: 16px;">
-        <label class="form-label">보안 암호(PIN) 4자리 변경</label>
-        <div style="display: flex; gap:6px;">
-          <input type="password" id="changePinInput" class="form-input" maxlength="4" placeholder="4자리 숫자">
-          <button type="button" class="btn-top primary" onclick="updatePin()">변경</button>
+      <div style="margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+        <label class="form-label" style="margin-bottom: 8px;">🔒 보안 암호(PIN) 4자리 변경</label>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <input type="password" id="newPinInput" class="form-input" maxlength="4" placeholder="새 암호 (숫자 4자리)" style="text-align: center; letter-spacing: 4px; font-size: 16px;">
+          <input type="password" id="confirmPinInput" class="form-input" maxlength="4" placeholder="새 암호 한 번 더 확인" style="text-align: center; letter-spacing: 4px; font-size: 16px;">
+          <button type="button" class="btn-top primary" style="width: 100%; padding: 10px; font-weight: 800;" onclick="updatePin()">암호 변경 저장</button>
         </div>
       </div>
       <div style="margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border);">
@@ -1337,13 +1326,29 @@
     }
 
     function updatePin() {
-      const v = document.getElementById('changePinInput').value.trim();
-      if (!/^\d{4}$/.test(v)) return alert('암호는 4자리 숫자여야 합니다.');
-      settings.pin = v;
+      const p1 = document.getElementById('newPinInput').value.trim();
+      const p2 = document.getElementById('confirmPinInput').value.trim();
+
+      if (!/^\d{4}$/.test(p1)) {
+        return alert('새 암호는 숫자 4자리여야 합니다.');
+      }
+      if (p1 !== p2) {
+        return alert('입력하신 두 암호가 일치하지 않습니다.\n다시 확인해 주세요.');
+      }
+      if (p1 === '0000') {
+        if (!confirm('초기 암호인 0000으로 설정하시겠습니까?')) return;
+      } else {
+        if (!confirm('새 비밀번호 [' + p1 + '] 로 변경하시겠습니까?\n(분실 시 복구가 어려우니 꼭 기억해 주세요!)')) {
+          return;
+        }
+      }
+
+      settings.pin = p1;
       saveData();
-      document.getElementById('changePinInput').value = '';
+      document.getElementById('newPinInput').value = '';
+      document.getElementById('confirmPinInput').value = '';
       checkInitialPinBanner();
-      showToast('암호가 변경되었습니다');
+      showToast('🎉 암호가 안전하게 변경되었습니다');
     }
 
     function exportData() {
@@ -1402,6 +1407,7 @@
     }
 
     function lockApp() {
+      if (!confirm('화면을 잠그고 로그아웃 하시겠습니까?')) return;
       sessionStorage.removeItem('unlocked');
       clearPin();
       const lock = document.getElementById('lockScreen');
@@ -1409,6 +1415,7 @@
         lock.style.display = 'flex';
         lock.style.zIndex = '999999';
       }
+    }
     }
 
     /* Helpers & Android Back-Key Handling */
