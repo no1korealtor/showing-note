@@ -215,6 +215,9 @@
     .pin-dot.filled { background: #38bdf8; border-color: #38bdf8; }
     .pin-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
     .pin-key {
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
       width: 72px; height: 72px; border-radius: 50%; background: #1e293b; border: 1px solid #334155;
       font-size: 26px; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
@@ -1377,6 +1380,22 @@
     }
 
     /* PIN Functions */
+    
+    /* PC 키보드 숫자 입력 지원 (숫자 0-9, Backspace, Enter, Esc) */
+    window.addEventListener('keydown', (e) => {
+      const lock = document.getElementById('lockScreen');
+      if (!lock || lock.style.display === 'none') return;
+
+      // 모달이 열려있지 않을 때만 키패드 입력 처리
+      if (e.key >= '0' && e.key <= '9') {
+        pressPin(e.key);
+      } else if (e.key === 'Backspace') {
+        backspacePin();
+      } else if (e.key === 'Escape') {
+        clearPin();
+      }
+    });
+
     function pressPin(n) {
       if (enteredPin.length < 4) {
         enteredPin += n;
