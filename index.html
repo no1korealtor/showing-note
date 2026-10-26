@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>중개노트 - 공인중개사 현장 수첩</title>
+  <style>
+    :root {
+      --primary: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --sub: #475569;
+      --border: #cbd5e1;
+      --success: #15803d;
+      --warn: #b45309;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 60px; font-size: 15px; }
+
+    /* Top Bar */
+    header {
+      position: sticky; top: 0; z-index: 50; background: #ffffff;
+      border-bottom: 2px solid #e2e8f0; padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-title { font-size: 18px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 6px; }
+    .header-btns { display: flex; gap: 8px; }
+    .btn-top {
+      background: #f8fafc; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 6px 11px; font-size: 13px; font-weight: 700; cursor: pointer; color: #334155;
+    }
+    .btn-top.primary { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .main-wrap { max-width: 640px; margin: 0 auto; padding: 12px 14px; }
+
+    /* Filter & Search Bar */
+    .filter-bar {
+      display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; padding-bottom: 4px;
+    }
+    .dong-pill {
+      background: #ffffff; border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 6px 14px; font-size: 14px; font-weight: 700; color: #475569; cursor: pointer; white-space: nowrap;
+    }
+    .dong-pill.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+    .search-box {
+      width: 100%; padding: 11px 14px; border-radius: 10px; border: 1.5px solid var(--border);
+      background: white; font-size: 15px; margin-bottom: 10px; outline: none;
+    }
+
+    /* Sort Bar */
+    .sort-bar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+    }
+    .btn-sort {
+      background: #ffffff; border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 5px 10px; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer;
+    }
+    .btn-sort.active {
+      background: #1d4ed8; color: white; border-color: #1d4ed8;
+    }
+
+    /* ADDRESS CARD (Main Focus) */
+    .prop-card {
+      background: var(--card); border-radius: 14px; border: 1.5px solid #cbd5e1;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06); margin-bottom: 20px; overflow: hidden;
+      border-top: 4px solid #1e40af; /* 물건지 최상단 블루 포인트 라인 */
+    }
+
+    /* Card Top: Address */
+    .card-top {
+      padding: 14px 16px; background: #ffffff; border-bottom: 2px solid #e2e8f0;
+    }
+    .star-bullet {
+      color: #f59e0b; font-size: 20px; line-height: 1; margin-right: 4px; display: inline-block; vertical-align: middle;
+    }
+    .addr-header {
+      display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+    }
+    .addr-dong-badge {
+      display: inline-block; background: #e0e7ff; color: #3730a3;
+      font-size: 13px; font-weight: 800; padding: 3px 8px; border-radius: 6px; margin-right: 4px; vertical-align: middle;
+    }
+    .addr-main {
+      font-size: 20px; font-weight: 900; color: #0f172a; line-height: 1.35; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+    }
+    .addr-ho {
+      color: #1d4ed8; background: #eff6ff; padding: 1px 7px; border-radius: 6px; font-size: 17px; border: 1px solid #bfdbfe; margin-left: 2px;
+    }
+    .addr-building { font-size: 14px; font-weight: 600; color: #64748b; margin-top: 3px; padding-left: 24px; }
+
+    .btn-map-link {
+      background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 8px;
+      padding: 6px 10px; font-size: 12px; font-weight: 800; color: #0284c7; text-decoration: none;
+      white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;
+    }
+
+    /* Passwords & Owner Line */
+    .pw-line {
+      margin-top: 10px; background: #f8fafc; border: 1.5px dashed #94a3b8; border-radius: 8px;
+      padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .pw-text { font-size: 14px; font-weight: 700; color: #1e293b; }
+    .pw-text span { font-size: 16px; font-weight: 900; color: #2563eb; font-family: monospace; }
+    .btn-owner-call {
+      background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px;
+      padding: 5px 11px; font-size: 12px; font-weight: 800; color: #92400e; text-decoration: none;
+    }
+
+    /* INDENTED SECTION: SHOWING HISTORY & UPCOMING (Tree structure) */
+    .showing-tree {
+      padding: 14px 16px 14px 14px; background: #f8fafc;
+    }
+    .tree-header-row {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .tree-header-label {
+      font-size: 12.5px; font-weight: 800; color: #1e40af; display: flex; align-items: center; gap: 4px;
+    }
+    .btn-add-schedule {
+      background: #ffffff; border: 1.5px solid #2563eb; color: #2563eb;
+      font-size: 12px; font-weight: 800; border-radius: 6px; padding: 4px 10px; cursor: pointer;
+    }
+
+    /* Tree Branch Indentation Container */
+    .tree-branch-container {
+      margin-left: 10px;
+      padding-left: 16px;
+      border-left: 3px dashed #93c5fd; /* 확실한 나뭇가지 들여쓰기 선 */
+      position: relative;
+    }
+
+    .tree-section-title {
+      font-size: 12px; font-weight: 800; letter-spacing: 0.3px; margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .title-upcoming { color: #1d4ed8; }
+    .title-past { color: #64748b; margin-top: 14px; }
+
+    /* Future / Upcoming item (Highlighted) */
+    .schedule-item-future {
+      background: #ffffff; border: 1.5px solid #bfdbfe; border-left: 5px solid #2563eb;
+      border-radius: 8px; padding: 11px 13px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(37,99,235,0.06);
+      position: relative;
+    }
+    .future-head {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+    }
+    .future-time { font-size: 15px; font-weight: 900; color: #1d4ed8; }
+    .future-client { font-size: 15px; font-weight: 800; color: #0f172a; }
+    .btn-call-mini {
+      background: #dbeafe; color: #1e40af; border: none; border-radius: 6px;
+      padding: 5px 11px; font-size: 12px; font-weight: 800; text-decoration: none;
+    }
+    .future-memo { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .future-actions {
+      display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; border-top: 1px dashed #e2e8f0; padding-top: 6px;
+    }
+    .btn-mini-act {
+      background: transparent; border: 1px solid #cbd5e1; border-radius: 4px;
+      padding: 3px 8px; font-size: 11.5px; font-weight: 700; color: #475569; cursor: pointer;
+    }
+
+    /* Past item (Subdued, Indented History) */
+    .schedule-item-past {
+      background: #ffffff; border: 1px solid #e2e8f0; border-left: 3px solid #94a3b8;
+      border-radius: 6px; padding: 8px 10px; margin-bottom: 6px; font-size: 13px; color: #475569;
+    }
+    .past-date { font-size: 12px; font-weight: 700; color: #94a3b8; }
+    .past-client { font-weight: 700; color: #334155; }
+    .past-feedback {
+      background: #f1f5f9; padding: 5px 8px; border-radius: 6px; margin-top: 4px; font-size: 12.5px; color: #1e293b;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100;
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      background: white; width: 100%; max-width: 580px; max-height: 90vh;
+      border-radius: 18px 18px 0 0; padding: 20px 18px 30px; overflow-y: auto;
+    }
+    .modal-title { font-size: 18px; font-weight: 900; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 13px; font-weight: 700; color: #334155; margin-bottom: 5px; }
+    .form-input, .form-textarea, .form-select {
+      width: 100%; padding: 11px 12px; font-size: 15px; border: 1.5px solid var(--border); border-radius: 8px; outline: none;
+    }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-submit {
+      width: 100%; background: var(--primary); color: white; border: none; border-radius: 10px;
+      padding: 13px; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 10px;
+    }
+
+    /* Chip group */
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+    .chip {
+      background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 16px;
+      padding: 5px 12px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer;
+    }
+    .chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* PIN Lock Screen */
+    #lockScreen {
+      position: fixed; inset: 0; z-index: 9999; background: #0f172a; color: white;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px;
+    }
+    .pin-dots { display: flex; gap: 14px; margin: 24px 0; }
+    .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #64748b; }
+    .pin-dot.filled { background: #38bdf8; border-color: #38bdf8; }
+    .pin-pad { display: grid; grid-template-columns: repeat(3, 72px); gap: 14px; }
+    .pin-key {
+      width: 72px; height: 72px; border-radius: 50%; background: #1e293b; border: 1px solid #334155;
+      font-size: 26px; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .pin-key:active { background: #334155; }
+
+    #toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10000;
+      background: #0f172a; color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+    }
+    #toast.show { opacity: 1; }
+
+    /* Initial PIN Warning Banner */
+    #initialPinBanner {
+      background: #FFFBEB;
+      border-bottom: 1.5px solid #FDE68A;
+      padding: 10px 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #92400E;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    #initialPinBanner .banner-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      flex: 1;
+    }
+    #initialPinBanner .banner-btn {
+      background: #D97706;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PIN Screen -->
+  <div id="lockScreen">
+    <div style="font-size: 38px; margin-bottom: 8px;">🔒</div>
+    <div style="font-size: 22px; font-weight: 900;">중개노트</div>
+    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">4자리 암호를 입력해주세요</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-key" onclick="pressPin('1')">1</button>
+      <button class="pin-key" onclick="pressPin('2')">2</button>
+      <button class="pin-key" onclick="pressPin('3')">3</button>
+      <button class="pin-key" onclick="pressPin('4')">4</button>
+      <button class="pin-key" onclick="pressPin('5')">5</button>
+      <button class="pin-key" onclick="pressPin('6')">6</button>
+      <button class="pin-key" onclick="pressPin('7')">7</button>
+      <button class="pin-key" onclick="pressPin('8')">8</button>
+      <button class="pin-key" onclick="pressPin('9')">9</button>
+      <button class="pin-key" style="font-size: 14px;" onclick="clearPin()">취소</button>
+      <button class="pin-key" onclick="pressPin('0')">0</button>
+      <button class="pin-key" style="font-size: 14px;" onclick="backspacePin()">⌫</button>
+    </div>
+  </div>
+
+  <!-- Initial PIN Alert Banner -->
+  <div id="initialPinBanner" style="display:flex; background:#FFFBEB; border-bottom:2px solid #FCD34D; padding:10px 14px; align-items:center; justify-content:space-between; font-size:13px; color:#92400E; position:sticky; top:0; z-index:9999;">
+    <div class="banner-left">
+      <span>🔒</span>
+      <span>초기비밀번호(0000) 사용 중입니다. 나만의 암호로 변경해 주세요!</span>
+    </div>
+    <button class="banner-btn" onclick="openSettingsModal()">변경하기 →</button>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-title">
+      <span>🏡 중개노트</span>
+    </div>
+    <div class="header-btns">
+      <button class="btn-top" onclick="lockApp()" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2; font-weight:800;">🔒 로그아웃</button>
+      <button class="btn-top" onclick="openSettingsModal()">⚙️ 설정</button>
+      <button class="btn-top primary" onclick="openNewPropertyModal()">➕ 새 집(주소) 등록</button>
+    </div>
+  </header>
+
+  <div class="main-wrap">
+    <!-- Quick Dong Filter & Search -->
+    <div class="filter-bar" id="dongPills"></div>
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 지번, 번호, 건물명, 손님 검색..." oninput="renderApp()">
+
+    <!-- Sort Bar (일정 빠른순 vs 주소순) -->
+    <div class="sort-bar">
+      <span style="font-size:12.5px; font-weight:700; color:#64748b;" id="propCount">총 0개 집</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-sort active" id="sortScheduleBtn" onclick="setSortBy('schedule')">⏰ 일정 빠른순</button>
+        <button class="btn-sort" id="sortAddrBtn" onclick="setSortBy('address')">📍 주소순</button>
+      </div>
+    </div>
+
+    <!-- Address-Centric Cards List -->
+    <div id="addressCardsList"></div>
+  </div>
+
+  <!-- Modal: 새 집(주소) & 쇼잉 등록 및 물건지 수정 -->
+  <div class="modal-overlay" id="propModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span id="propModalTitle">🏡 새 집(주소) 등록</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('propModal')">✕</span>
+      </div>
+      <form id="propForm" onsubmit="savePropertyAndShowing(event)">
+        <input type="hidden" id="editPropId">
+        <!-- 1. 주소 -->
+        <div class="form-group">
+          <label class="form-label">1. 동 선택</label>
+          <div class="chips" id="modalDongChips"></div>
+          <input type="hidden" id="formDong" required>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">지번 <span style="color:red">*</span></label>
+            <input type="text" id="formJibun" class="form-input" placeholder="예: 234-12" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">호수 / 층수</label>
+            <input type="text" id="formHo" class="form-input" placeholder="예: 201호">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">건물명 (선택)</label>
+          <input type="text" id="formBuilding" class="form-input" placeholder="예: 성산아트빌">
+        </div>
+
+        <!-- 2. 비밀번호 & 임대인 -->
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">공동현관 비번</label>
+            <input type="text" id="formCommonPw" class="form-input" placeholder="예: #1234* / 종1234">
+          </div>
+          <div class="form-group">
+            <label class="form-label">세대 도어락 비번</label>
+            <input type="text" id="formDoorPw" class="form-input" placeholder="예: 5678*">
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">비번 확인처 (임대인 등)</label>
+            <input type="text" id="formOwnerName" class="form-input" placeholder="예: 집주인, 관리인">
+          </div>
+          <div class="form-group">
+            <label class="form-label">임대인 연락처</label>
+            <input type="tel" id="formOwnerPhone" class="form-input" placeholder="010-0000-0000">
+          </div>
+        </div>
+
+        <!-- 3. 바로 잡힌 쇼잉 약속이 있다면 (신규 등록 시에만 표시) -->
+        <div id="propModalShowingSection" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 10px;">
+          <div style="font-size: 13px; font-weight: 800; color: #2563eb; margin-bottom: 8px;">
+            🗓️ 지금 바로 보여줄 약속이 있나요? (선택)
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">약속 날짜</label>
+              <input type="date" id="formDate" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">약속 시간</label>
+              <input type="time" id="formTime" class="form-input" value="14:00">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label">손님 연락처</label>
+              <input type="tel" id="formClientPhone" class="form-input" placeholder="010-0000-0000" oninput="onPhoneInput(this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">손님 구분 (미입력시 자동)</label>
+              <input type="text" id="formClientName" class="form-input" placeholder="예: 직방, 신혼부부">
+            </div>
+          </div>
+          <div class="chips" style="margin-top: 4px;">
+            <button type="button" class="chip" onclick="quickTag('직방손님')">직방</button>
+            <button type="button" class="chip" onclick="quickTag('네이버손님')">네이버</button>
+            <button type="button" class="chip" onclick="quickTag('신혼부부')">신혼부부</button>
+            <button type="button" class="chip" onclick="quickTag('1인청년')">1인청년</button>
+            <button type="button" class="chip" onclick="quickTag('LH/버팀목')">LH/버팀목</button>
+          </div>
+        </div>
+
+        <button type="submit" id="propSubmitBtn" class="btn-submit">저장 완료</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: 기존 집에 쇼잉 약속 추가 -->
+  <div class="modal-overlay" id="addShowingModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span id="addShowingPropTitle">🗓️ 약속 잡기</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('addShowingModal')">✕</span>
+      </div>
+      <form onsubmit="saveNewShowingToProp(event)">
+        <input type="hidden" id="targetPropId">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">약속 날짜 <span style="color:red">*</span></label>
+            <input type="date" id="addDate" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">약속 시간 <span style="color:red">*</span></label>
+            <input type="time" id="addTime" class="form-input" value="14:00" required>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">손님 연락처</label>
+            <input type="tel" id="addClientPhone" class="form-input" placeholder="010-0000-0000" oninput="onAddPhoneInput(this.value)">
+          </div>
+          <div class="form-group">
+            <label class="form-label">손님 구분 (미입력시 자동)</label>
+            <input type="text" id="addClientName" class="form-input" placeholder="예: 직방, 신혼부부">
+          </div>
+        </div>
+        <div class="chips">
+          <button type="button" class="chip" onclick="quickAddTag('직방손님')">직방</button>
+          <button type="button" class="chip" onclick="quickAddTag('네이버손님')">네이버</button>
+          <button type="button" class="chip" onclick="quickAddTag('신혼부부')">신혼부부</button>
+          <button type="button" class="chip" onclick="quickAddTag('1인청년')">1인청년</button>
+          <button type="button" class="chip" onclick="quickAddTag('LH/버팀목')">LH/버팀목</button>
+        </div>
+        <div class="form-group" style="margin-top: 8px;">
+          <label class="form-label">사전 메모</label>
+          <input type="text" id="addMemo" class="form-input" placeholder="예: 전세 2억 희망, 주차 문의">
+        </div>
+        <button type="submit" class="btn-submit">약속 등록하기</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: 쇼잉 완료 결과 메모 -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>📝 손님 반응 / 결과 기록</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('feedbackModal')">✕</span>
+      </div>
+      <input type="hidden" id="feedbackShowingId">
+      <div class="form-group">
+        <label class="form-label">손님 반응 및 진행 상황</label>
+        <textarea id="feedbackText" class="form-textarea" rows="4" placeholder="예: 방 채광은 좋아함. 보증금 1천만 깎아주면 계약하겠다고 함. 주말 재방문 예정"></textarea>
+      </div>
+      <button class="btn-submit" onclick="saveFeedback()">기록 저장</button>
+    </div>
+  </div>
+
+  <!-- Modal: 설정 -->
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-sheet">
+      <div class="modal-title">
+        <span>⚙️ 환경 설정</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('settingsModal')">✕</span>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">📍 내 활동 동 목록</label>
+        <div class="chips" id="settingsDongChips"></div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <input type="text" id="newDongText" class="form-input" placeholder="새로운 동 이름 (예: 연남동)">
+          <button type="button" class="btn-top primary" onclick="addDong()">추가</button>
+        </div>
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">기본 시/구 (지도 검색용)</label>
+        <input type="text" id="baseDistrict" class="form-input" onchange="settings.baseDistrict=this.value; saveData();">
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">보안 암호(PIN) 4자리 변경</label>
+        <div style="display: flex; gap:6px;">
+          <input type="password" id="changePinInput" class="form-input" maxlength="4" placeholder="4자리 숫자">
+          <button type="button" class="btn-top primary" onclick="updatePin()">변경</button>
+        </div>
+      </div>
+      <div style="margin-top: 16px; padding-top: 12px; border-top: 1px dashed var(--border);">
+        <label class="form-label">🛡️ 공인중개사 자산 보호 (자동 스냅샷 & 암호화 금고)</label>
+        <p style="font-size:12px; color:#64748b; margin-bottom:8px;">
+          앱을 삭제해도 스마트폰 공용 저장소(Documents)에 AES-256으로 암호화 보관되어, 재설치 시 암호만 치면 100% 복구됩니다.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <button class="btn-top" type="button" style="width:100%; border-color:#3b82f6; color:#1d4ed8; font-weight:800;" onclick="restoreLatestSnapshot()">🔄 직전 저장 상태로 되돌리기 (실수 복구)</button>
+          <button class="btn-top" type="button" style="width:100%; border-color:#10b981; color:#047857; font-weight:800;" onclick="exportEncryptedVaultFile()">🔐 암호화 금고 파일 내보내기 (.enc)</button>
+          <button class="btn-top" type="button" style="width:100%; border-color:#8b5cf6; color:#6d28d9; font-weight:800;" onclick="document.getElementById('importVaultFile').click()">📂 암호화 금고 파일 복원 (.enc)</button>
+          <input type="file" id="importVaultFile" style="display:none;" accept=".enc,.json" onchange="importEncryptedVaultFile(event)">
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px; margin-top:14px;">
+        <button class="btn-top" style="flex:1;" onclick="exportData()">💾 일반 JSON 백업</button>
+        <button class="btn-top" style="flex:1;" onclick="document.getElementById('importFile').click()">📂 복원</button>
+        <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(event)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 암호화 금고 복구 안내 모달 (재설치 시 자동 감지) -->
+  <div class="modal-overlay" id="vaultRecoveryModal">
+    <div class="modal-sheet" style="text-align: center;">
+      <div style="font-size: 42px; margin-bottom: 8px;">🛡️</div>
+      <div class="modal-title" style="justify-content: center; border: none; margin-bottom: 6px;">이전 보안 금고가 발견되었습니다!</div>
+      <p style="font-size: 13px; color: #475569; margin-bottom: 16px; line-height: 1.5;">
+        앱이 새로 설치되었지만 스마트폰에 안전하게 암호화 보관된 <b>중개사 자산 장부</b>가 감지되었습니다.<br>
+        이전에 사용하시던 비밀번호(PIN)를 입력하시면 즉시 복원됩니다.
+      </p>
+      <input type="password" id="vaultRecoveryPinInput" class="form-input" maxlength="6" placeholder="기존 비밀번호 입력" style="text-align: center; font-size: 20px; letter-spacing: 4px; margin-bottom: 12px;">
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-top" style="flex: 1;" onclick="closeModal('vaultRecoveryModal')">새로 시작하기</button>
+        <button type="button" class="btn-top primary" style="flex: 1; font-weight: 800;" onclick="submitVaultRecovery()">금고 데이터 복구</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
+    const STORAGE_KEY_PROPERTIES = 'showing_diary_properties';
+    const STORAGE_KEY_SHOWINGS = 'showing_diary_showings';
+    const STORAGE_KEY_SNAPSHOTS = 'showing_diary_snapshots';
+
+    let settings = { pin: '0000', dongs: ['성산동', '중동'], baseDistrict: '서울특별시 마포구' };
+    let properties = [];
+    let showings = [];
+    let currentDongFilter = 'ALL';
+    let currentSortBy = 'schedule'; // 기본: 일정 빠른순!
+    let enteredPin = '';
+
+    function setSortBy(mode) {
+      currentSortBy = mode;
+      renderApp();
+      checkInitialPinBanner();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadData();
+      checkVaultRecoveryOnStartup();
+      initDefaultDataIfEmpty();
+      renderApp();
+      checkInitialPinBanner();
+      if (sessionStorage.getItem('unlocked') === 'true') {
+        document.getElementById('lockScreen').style.display = 'none';
+      }
+    });
+
+    function loadData() {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY_SETTINGS); if (s) settings = JSON.parse(s);
+        const p = localStorage.getItem(STORAGE_KEY_PROPERTIES);
+        if (p) {
+          // Schema healing & backward compatibility
+          properties = JSON.parse(p).map(item => ({
+            id: item.id || 'prop-' + Date.now(),
+            dong: item.dong || settings.dongs[0] || '성산동',
+            jibun: item.jibun || '',
+            ho: item.ho || '',
+            building: item.building || item.buildingName || '',
+            doorPw: item.doorPw || '',
+            commonPw: item.commonPw || '',
+            ownerName: item.ownerName || '',
+            ownerPhone: item.ownerPhone || ''
+          }));
+        }
+        const sh = localStorage.getItem(STORAGE_KEY_SHOWINGS);
+        if (sh) {
+          showings = JSON.parse(sh).map(item => ({
+            id: item.id || 's-' + Date.now(),
+            propertyId: item.propertyId,
+            date: item.date || getTodayString(),
+            time: item.time || '14:00',
+            clientPhone: item.clientPhone || '',
+            clientName: item.clientName || '손님',
+            memo: item.memo || '',
+            feedback: item.feedback || '',
+            status: item.status || 'pending'
+          }));
+        }
+      } catch(e){}
+    }
+
+    function pushSnapshot() {
+      try {
+        const snaps = JSON.parse(localStorage.getItem(STORAGE_KEY_SNAPSHOTS) || '[]');
+        snaps.unshift({
+          timestamp: new Date().toISOString(),
+          properties: properties,
+          showings: showings
+        });
+        if (snaps.length > 5) snaps.length = 5;
+        localStorage.setItem(STORAGE_KEY_SNAPSHOTS, JSON.stringify(snaps));
+      } catch(e){}
+    }
+
+    function restoreLatestSnapshot() {
+      try {
+        const snaps = JSON.parse(localStorage.getItem(STORAGE_KEY_SNAPSHOTS) || '[]');
+        if (snaps.length < 2) {
+          alert('되돌릴 수 있는 이전 저장 기록이 아직 없습니다.');
+          return;
+        }
+        if (!confirm('직전 저장 상태로 데이터를 되돌리시겠습니까?')) return;
+        const target = snaps[1]; // previous state
+        properties = target.properties || [];
+        showings = target.showings || [];
+        saveData(false);
+        renderApp();
+        closeModal('settingsModal');
+        showToast('🔄 직전 저장 상태로 복구되었습니다!');
+      } catch(e){ alert('복구 중 오류가 발생했습니다.'); }
+    }
+
+    function saveData(createSnapshot = true) {
+      if (createSnapshot) pushSnapshot();
+      localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+      localStorage.setItem(STORAGE_KEY_PROPERTIES, JSON.stringify(properties));
+      localStorage.setItem(STORAGE_KEY_SHOWINGS, JSON.stringify(showings));
+      syncVaultToNative();
+    }
+
+    /* --- AES-256 Web Crypto Vault Engine (앱 삭제 대비 영구 보존) --- */
+    async function deriveVaultKey(pin, salt) {
+      const enc = new TextEncoder();
+      const keyMaterial = await crypto.subtle.importKey(
+        "raw", enc.encode(pin), { name: "PBKDF2" }, false, ["deriveKey"]
+      );
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt, iterations: 100000, hash: "SHA-256" },
+        keyMaterial,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    function u8ToBase64(u8) {
+      let s = '';
+      for (let i = 0; i < u8.length; i++) s += String.fromCharCode(u8[i]);
+      return btoa(s);
+    }
+
+    function base64ToU8(b64) {
+      const s = atob(b64);
+      const u8 = new Uint8Array(s.length);
+      for (let i = 0; i < s.length; i++) u8[i] = s.charCodeAt(i);
+      return u8;
+    }
+
+    async function encryptVault(dataObj, pin) {
+      const enc = new TextEncoder();
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await deriveVaultKey(pin, salt);
+      const cipher = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        key,
+        enc.encode(JSON.stringify(dataObj))
+      );
+      return JSON.stringify({
+        type: "showing_note_encrypted_vault",
+        v: "1.2.0",
+        salt: u8ToBase64(salt),
+        iv: u8ToBase64(iv),
+        data: u8ToBase64(new Uint8Array(cipher)),
+        savedAt: new Date().toISOString()
+      });
+    }
+
+    async function decryptVault(bundleStr, pin) {
+      const bundle = typeof bundleStr === 'string' ? JSON.parse(bundleStr) : bundleStr;
+      if (bundle.type !== "showing_note_encrypted_vault") {
+        throw new Error("올바른 암호화 금고 파일 형식이 아닙니다.");
+      }
+      const salt = base64ToU8(bundle.salt);
+      const iv = base64ToU8(bundle.iv);
+      const cipher = base64ToU8(bundle.data);
+      const key = await deriveVaultKey(pin, salt);
+      const decBuf = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        key,
+        cipher
+      );
+      const dec = new TextDecoder();
+      return JSON.parse(dec.decode(decBuf));
+    }
+
+    async function syncVaultToNative() {
+      try {
+        const payload = { settings, properties, showings, time: new Date().toISOString() };
+        const encStr = await encryptVault(payload, settings.pin);
+        localStorage.setItem('showing_note_encrypted_vault', encStr);
+        if (window.AndroidBridge && window.AndroidBridge.saveEncryptedVault) {
+          window.AndroidBridge.saveEncryptedVault(encStr);
+        }
+      } catch(e){}
+    }
+
+    async function exportEncryptedVaultFile() {
+      try {
+        const payload = { settings, properties, showings };
+        const encStr = await encryptVault(payload, settings.pin);
+        const blob = new Blob([encStr], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `중개사_쇼잉수첩_보안금고_${getTodayString()}.enc`;
+        a.click();
+        showToast('🔐 암호화 금고 파일이 안전하게 다운로드되었습니다');
+      } catch(e) { alert('암호화 중 오류가 발생했습니다.'); }
+    }
+
+    function importEncryptedVaultFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        try {
+          const pin = prompt('이 암호화 금고를 생성할 때 사용한 비밀번호(PIN)를 입력하세요:');
+          if (!pin) return;
+          const restored = await decryptVault(evt.target.result, pin);
+          if (restored.properties) {
+            settings = restored.settings || settings;
+            properties = restored.properties || [];
+            showings = restored.showings || [];
+            saveData(false);
+            renderApp();
+            showToast('🎉 암호화 금고에서 데이터가 100% 복원되었습니다!');
+          }
+        } catch(err) {
+          alert('비밀번호가 맞지 않거나 손상된 파일입니다.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function checkVaultRecoveryOnStartup() {
+      if (properties.length === 0) {
+        let vaultStr = '';
+        if (window.AndroidBridge && window.AndroidBridge.hasEncryptedVault && window.AndroidBridge.hasEncryptedVault()) {
+          vaultStr = window.AndroidBridge.loadEncryptedVault();
+        } else {
+          vaultStr = localStorage.getItem('showing_note_encrypted_vault') || '';
+        }
+
+        if (vaultStr) {
+          window._pendingVaultStr = vaultStr;
+          setTimeout(() => openModal('vaultRecoveryModal'), 400);
+        }
+      }
+    }
+
+    async function submitVaultRecovery() {
+      const pin = document.getElementById('vaultRecoveryPinInput').value.trim();
+      if (!pin) return alert('비밀번호를 입력하세요.');
+      try {
+        const restored = await decryptVault(window._pendingVaultStr, pin);
+        if (restored.properties) {
+          settings = restored.settings || settings;
+          properties = restored.properties || [];
+          showings = restored.showings || [];
+          saveData(false);
+          closeModal('vaultRecoveryModal');
+          renderApp();
+          showToast('🎉 이전 장부 데이터가 100% 복원되었습니다!');
+        }
+      } catch(err) {
+        alert('비밀번호가 일치하지 않습니다.');
+      }
+    }
+
+    function initDefaultDataIfEmpty() {
+      if (properties.length === 0) {
+        properties = [
+          {
+            id: 'prop-1',
+            dong: '성산동',
+            jibun: '234-12',
+            ho: '201호',
+            building: '성산아트빌',
+            doorPw: '1357*',
+            commonPw: '#1234*',
+            ownerName: '임대인',
+            ownerPhone: '010-3456-7890'
+          },
+          {
+            id: 'prop-2',
+            dong: '중동',
+            jibun: '65-4',
+            ho: '302호',
+            building: '대우베스트',
+            doorPw: '0089#',
+            commonPw: '종0101',
+            ownerName: '관리소장',
+            ownerPhone: '010-9876-1234'
+          }
+        ];
+        const today = getTodayString();
+        showings = [
+          {
+            id: 's-1',
+            propertyId: 'prop-1',
+            date: today,
+            time: '14:00',
+            clientName: '직방 (5678)',
+            clientPhone: '010-1234-5678',
+            memo: '전세 2억3천선, 주차 확인 희망',
+            feedback: ''
+          },
+          {
+            id: 's-2',
+            propertyId: 'prop-1',
+            date: '2026-10-18',
+            time: '11:00',
+            clientName: 'LH/버팀목 (3321)',
+            clientPhone: '010-5555-3321',
+            memo: '',
+            feedback: '채광 좋다고 마음에 들어함. 대출 한도 조회 후 재연락 주기로 함'
+          },
+          {
+            id: 's-3',
+            propertyId: 'prop-2',
+            date: today,
+            time: '16:30',
+            clientName: '신혼부부 (8899)',
+            clientPhone: '010-7777-8899',
+            memo: '즉시입주 가능여부 체크',
+            feedback: ''
+          }
+        ];
+        saveData();
+      }
+    }
+
+    /* RENDER CORE: ADDRESS FIRST, INDENTED SHOWINGS */
+    function renderApp() {
+      renderDongPills();
+      const container = document.getElementById('addressCardsList');
+      const searchWord = document.getElementById('searchInput').value.trim().toLowerCase();
+      const today = getTodayString();
+
+      // Filter properties
+      let list = properties.filter(p => {
+        if (currentDongFilter !== 'ALL' && p.dong !== currentDongFilter) return false;
+        if (searchWord) {
+          const matchAddr = `${p.dong} ${p.jibun} ${p.ho || ''} ${p.building || ''}`.toLowerCase();
+          if (matchAddr.includes(searchWord)) return true;
+          // check if showings match client name or phone
+          const pShows = showings.filter(s => s.propertyId === p.id);
+          const matchClient = pShows.some(s => (s.clientName || '').toLowerCase().includes(searchWord) || (s.clientPhone || '').includes(searchWord));
+          return matchClient;
+        }
+        return true;
+      });
+
+      if (list.length === 0) {
+        document.getElementById('propCount').textContent = `총 0개 집`;
+        container.innerHTML = `
+          <div style="text-align:center; padding: 50px 20px; color:#94a3b8;">
+            <div style="font-size:36px; margin-bottom:8px;">🏡</div>
+            <p style="font-weight:700; color:#475569;">등록된 집이 없습니다</p>
+            <p style="font-size:13px; margin-top:4px;">우측 상단 <b>[➕ 새 집 등록]</b>을 눌러 주소를 추가하세요.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort Bar UI Update
+      document.getElementById('sortScheduleBtn').classList.toggle('active', currentSortBy === 'schedule');
+      document.getElementById('sortAddrBtn').classList.toggle('active', currentSortBy === 'address');
+      document.getElementById('propCount').textContent = `총 ${list.length}개 집`;
+
+      // SORT PROPERTIES: SCHEDULE-FIRST vs ADDRESS
+      list.sort((a, b) => {
+        if (currentSortBy === 'schedule') {
+          // Earliest upcoming showing (today or future)
+          const aUp = showings.filter(s => s.propertyId === a.id && s.date >= today)
+                              .sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time))[0];
+          const bUp = showings.filter(s => s.propertyId === b.id && s.date >= today)
+                              .sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time))[0];
+
+          if (aUp && bUp) {
+            return (aUp.date + aUp.time).localeCompare(bUp.date + bUp.time);
+          }
+          if (aUp && !bUp) return -1; // a comes first
+          if (!aUp && bUp) return 1;  // b comes first
+
+          // If neither has upcoming, sort by latest past showing
+          const aPast = showings.filter(s => s.propertyId === a.id)
+                                .sort((x, y) => (y.date + y.time).localeCompare(x.date + x.time))[0];
+          const bPast = showings.filter(s => s.propertyId === b.id)
+                                .sort((x, y) => (y.date + y.time).localeCompare(x.date + x.time))[0];
+          if (aPast && bPast) {
+            return (bPast.date + bPast.time).localeCompare(aPast.date + aPast.time);
+          }
+          if (aPast && !bPast) return -1;
+          if (!aPast && bPast) return 1;
+          return (b.id || '').localeCompare(a.id || '');
+        } else {
+          return `${a.dong} ${a.jibun}`.localeCompare(`${b.dong} ${b.jibun}`, 'ko');
+        }
+      });
+
+      let html = '';
+      list.forEach(p => {
+        const fullAddr = `${settings.baseDistrict} ${p.dong} ${p.jibun}`;
+        const naverUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(fullAddr)}`;
+
+        // Separate showings into Upcoming (today or future) vs Past (before today)
+        const pShows = showings.filter(s => s.propertyId === p.id);
+        const upcomingShows = pShows
+          .filter(s => s.date >= today)
+          .sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time)); // Soonest first
+
+        const pastShows = pShows
+          .filter(s => s.date < today)
+          .sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time)); // Most recent past first
+
+        const nearestShowing = upcomingShows[0];
+        const scheduleBadge = nearestShowing ? `
+          <span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:12px; font-weight:800; padding:2px 8px; border-radius:6px; margin-left:6px;">
+            ⏰ ${formatDateLabel(nearestShowing.date)} ${nearestShowing.time} (${nearestShowing.clientName || '손님'})
+          </span>
+        ` : '';
+
+        html += `
+          <div class="prop-card">
+            <!-- 1. 주소 (최상단 - 별표 불릿 및 뚜렷한 구분) -->
+            <div class="card-top">
+              <div class="addr-header">
+                <div>
+                  <div class="addr-main">
+                    <span class="star-bullet">★</span>
+                    <span class="addr-dong-badge">${p.dong}</span>
+                    <span>${p.jibun}</span>
+                    ${p.ho ? `<span class="addr-ho">${p.ho}</span>` : ''}
+                    ${scheduleBadge}
+                  </div>
+                  ${p.building ? `<div class="addr-building">🏢 ${p.building}</div>` : ''}
+                </div>
+                <div style="display:flex; gap:6px; flex-shrink:0;">
+                  <button type="button" class="btn-map-link" style="background:#ffffff; color:#334155; border:1px solid #cbd5e1;" onclick="openEditPropertyModal('${p.id}')">✏️ 수정</button>
+                  <a href="${naverUrl}" target="_blank" class="btn-map-link">📍 지도열기</a>
+                </div>
+              </div>
+
+              <!-- 비번 & 임대인 연락처 (한눈에) -->
+              <div class="pw-line">
+                <div class="pw-text">🔑 공동: <span>${p.commonPw || '없음'}</span></div>
+                <div class="pw-text">🚪 세대: <span style="color:#1d4ed8;">${p.doorPw || '미등록'}</span></div>
+                ${p.ownerPhone ? `
+                  <a href="tel:${p.ownerPhone}" class="btn-owner-call">📞 ${p.ownerName || '임대인'} 통화</a>
+                ` : `<span style="font-size:12px; color:#94a3b8;">임대인 번호없음</span>`}
+              </div>
+            </div>
+
+            <!-- 2. 들여쓰기된 가지: 보러오는 손님 일정 (트리 연결선 포함) -->
+            <div class="showing-tree">
+              <div class="tree-header-row">
+                <span class="tree-header-label">
+                  <span style="font-size:15px;">↳</span> <b>매달린 약속 목록</b>
+                </span>
+                <button class="btn-add-schedule" onclick="openAddShowingModal('${p.id}', '${p.dong} ${p.jibun} ${p.ho||''}')">+ 약속추가</button>
+              </div>
+
+              <!-- 깊은 들여쓰기 컨테이너 -->
+              <div class="tree-branch-container">
+                <!-- 앞으로 올 미래 일정 (맨 앞/맨 위) -->
+                <div class="tree-section-title title-upcoming">
+                  <span>🗓️ 앞으로 올 약속 (${upcomingShows.length}건)</span>
+                </div>
+
+                ${upcomingShows.length > 0 ? upcomingShows.map(s => `
+                  <div class="schedule-item-future">
+                    <div class="future-head">
+                      <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
+                      <span class="future-client">${s.clientName || '손님'}</span>
+                      ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 손님통화</a>` : ''}
+                    </div>
+                    ${s.memo ? `<div class="future-memo">💡 ${s.memo}</div>` : ''}
+                    ${s.feedback ? `<div style="font-size:12.5px; color:#15803d; margin-top:4px;">✅ 반응: ${s.feedback}</div>` : ''}
+                    <div class="future-actions">
+                      <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">📝 반응/메모</button>
+                      <button class="btn-mini-act" onclick="deleteShowing('${s.id}')" style="color:red;">취소</button>
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div style="font-size:12.5px; color:#94a3b8; padding: 2px 0 10px;">예정된 약속 없음</div>
+                `}
+
+                <!-- 지난 안내 기록 (과거는 차분하게 아래로) -->
+                ${pastShows.length > 0 ? `
+                  <div class="tree-section-title title-past">
+                    <span>📜 지난 안내 기록 (${pastShows.length}건)</span>
+                  </div>
+                  ${pastShows.map(s => `
+                    <div class="schedule-item-past">
+                      <div>
+                        <span class="past-date">· ${s.date} ${s.time}</span> ·
+                        <span class="past-client">${s.clientName || '손님'}</span>
+                        ${s.clientPhone ? `<span style="font-size:11px; color:#94a3b8;">(${s.clientPhone})</span>` : ''}
+                      </div>
+                      ${s.feedback ? `<div class="past-feedback">📝 ${s.feedback}</div>` : `<div style="font-size:11px; color:#94a3b8; margin-top:2px;">(기록된 반응 없음)</div>`}
+                    </div>
+                  `).join('')}
+                ` : ''}
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 12px; padding-top:6px; border-top:1px dashed #e2e8f0;">
+                <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 물건지 정보/비번 수정</button>
+                <button class="btn-mini-act" onclick="deleteProperty('${p.id}')" style="color:#ef4444; border:none; font-size:11px;">매물 삭제</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderDongPills() {
+      const container = document.getElementById('dongPills');
+      let html = `<button class="dong-pill ${currentDongFilter === 'ALL' ? 'active' : ''}" onclick="setDongFilter('ALL')">전체 동</button>`;
+      settings.dongs.forEach(d => {
+        html += `<button class="dong-pill ${currentDongFilter === d ? 'active' : ''}" onclick="setDongFilter('${d}')">${d}</button>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function setDongFilter(d) {
+      currentDongFilter = d;
+      renderApp();
+    }
+
+    /* Modal Handlers */
+    function openNewPropertyModal() {
+      document.getElementById('editPropId').value = '';
+      document.getElementById('propModalTitle').textContent = '🏡 새 집(주소) 등록';
+      document.getElementById('propSubmitBtn').textContent = '새 주소 저장 완료';
+      document.getElementById('propModalShowingSection').style.display = 'block';
+
+      renderModalDongChips(settings.dongs[0]);
+      document.getElementById('propForm').reset();
+      document.getElementById('formDong').value = settings.dongs[0] || '';
+      document.getElementById('formDate').value = getTodayString();
+      openModal('propModal');
+    }
+
+    function openEditPropertyModal(propId) {
+      const p = properties.find(item => item.id === propId);
+      if (!p) return;
+
+      document.getElementById('editPropId').value = p.id;
+      document.getElementById('propModalTitle').textContent = `✏️ 물건지 정보/비번 수정`;
+      document.getElementById('propSubmitBtn').textContent = '수정 내용 저장';
+      document.getElementById('propModalShowingSection').style.display = 'none'; // 수정 시에는 일정 입력창 숨김
+
+      renderModalDongChips(p.dong || settings.dongs[0]);
+      document.getElementById('formDong').value = p.dong || settings.dongs[0];
+      document.getElementById('formJibun').value = p.jibun || '';
+      document.getElementById('formHo').value = p.ho || '';
+      document.getElementById('formBuilding').value = p.building || '';
+      document.getElementById('formCommonPw').value = p.commonPw || '';
+      document.getElementById('formDoorPw').value = p.doorPw || '';
+      document.getElementById('formOwnerName').value = p.ownerName || '';
+      document.getElementById('formOwnerPhone').value = p.ownerPhone || '';
+
+      openModal('propModal');
+    }
+
+    function renderModalDongChips(selected) {
+      const c = document.getElementById('modalDongChips');
+      c.innerHTML = settings.dongs.map(d => `
+        <button type="button" class="chip ${d === selected ? 'active' : ''}" onclick="selectModalDong('${d}')">${d}</button>
+      `).join('');
+      document.getElementById('formDong').value = selected;
+    }
+
+    function selectModalDong(d) {
+      renderModalDongChips(d);
+    }
+
+    function onPhoneInput(val) {
+      const nameInput = document.getElementById('formClientName');
+      if (!nameInput.value || nameInput.value.startsWith('손님 (')) {
+        const digits = val.replace(/\D/g, '');
+        if (digits.length >= 4) {
+          nameInput.value = `손님 (${digits.slice(-4)})`;
+        }
+      }
+    }
+
+    function quickTag(tag) {
+      const phone = document.getElementById('formClientPhone').value;
+      const digits = phone.replace(/\D/g, '');
+      const suffix = digits.length >= 4 ? ` (${digits.slice(-4)})` : '';
+      document.getElementById('formClientName').value = `${tag}${suffix}`;
+    }
+
+    function savePropertyAndShowing(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editPropId').value;
+      const dong = document.getElementById('formDong').value.trim();
+      const jibun = document.getElementById('formJibun').value.trim();
+      const ho = document.getElementById('formHo').value.trim();
+      const building = document.getElementById('formBuilding').value.trim();
+      const commonPw = document.getElementById('formCommonPw').value.trim();
+      const doorPw = document.getElementById('formDoorPw').value.trim();
+      const ownerName = document.getElementById('formOwnerName').value.trim();
+      const ownerPhone = document.getElementById('formOwnerPhone').value.trim();
+
+      if (editId) {
+        // 기존 물건지 수정
+        const p = properties.find(item => item.id === editId);
+        if (p) {
+          p.dong = dong;
+          p.jibun = jibun;
+          p.ho = ho;
+          p.building = building;
+          p.commonPw = commonPw;
+          p.doorPw = doorPw;
+          p.ownerName = ownerName;
+          p.ownerPhone = ownerPhone;
+          saveData();
+          closeModal('propModal');
+          renderApp();
+          showToast('✅ 물건지 정보가 성공적으로 수정되었습니다!');
+          return;
+        }
+      }
+
+      // 신규 물건지 등록
+      const newProp = {
+        id: 'prop-' + Date.now(),
+        dong, jibun, ho, building, commonPw, doorPw, ownerName, ownerPhone
+      };
+      properties.unshift(newProp); // add to top
+
+      // If showing schedule filled
+      const sDate = document.getElementById('formDate').value;
+      const sTime = document.getElementById('formTime').value;
+      const cPhone = document.getElementById('formClientPhone').value.trim();
+      let cName = document.getElementById('formClientName').value.trim();
+
+      if (sDate && sTime) {
+        if (!cName) {
+          const digits = cPhone.replace(/\D/g, '');
+          cName = digits.length >= 4 ? `손님 (${digits.slice(-4)})` : '방문 손님';
+        }
+        showings.push({
+          id: 's-' + Date.now(),
+          propertyId: newProp.id,
+          date: sDate,
+          time: sTime,
+          clientPhone: cPhone,
+          clientName: cName,
+          memo: '',
+          feedback: ''
+        });
+      }
+
+      saveData();
+      closeModal('propModal');
+      renderApp();
+      showToast('✅ 새 주소가 등록되었습니다');
+    }
+
+    /* Add Showing to existing property */
+    function openAddShowingModal(propId, title) {
+      document.getElementById('targetPropId').value = propId;
+      document.getElementById('addShowingPropTitle').textContent = `🗓️ ${title} 약속 잡기`;
+      document.getElementById('addDate').value = getTodayString();
+      document.getElementById('addClientPhone').value = '';
+      document.getElementById('addClientName').value = '';
+      document.getElementById('addMemo').value = '';
+      openModal('addShowingModal');
+    }
+
+    function onAddPhoneInput(val) {
+      const nameInput = document.getElementById('addClientName');
+      if (!nameInput.value || nameInput.value.startsWith('손님 (')) {
+        const digits = val.replace(/\D/g, '');
+        if (digits.length >= 4) {
+          nameInput.value = `손님 (${digits.slice(-4)})`;
+        }
+      }
+    }
+
+    function quickAddTag(tag) {
+      const phone = document.getElementById('addClientPhone').value;
+      const digits = phone.replace(/\D/g, '');
+      const suffix = digits.length >= 4 ? ` (${digits.slice(-4)})` : '';
+      document.getElementById('addClientName').value = `${tag}${suffix}`;
+    }
+
+    function saveNewShowingToProp(e) {
+      e.preventDefault();
+      const propId = document.getElementById('targetPropId').value;
+      const date = document.getElementById('addDate').value;
+      const time = document.getElementById('addTime').value;
+      const clientPhone = document.getElementById('addClientPhone').value.trim();
+      let clientName = document.getElementById('addClientName').value.trim();
+      const memo = document.getElementById('addMemo').value.trim();
+
+      if (!clientName) {
+        const digits = clientPhone.replace(/\D/g, '');
+        clientName = digits.length >= 4 ? `손님 (${digits.slice(-4)})` : '방문 손님';
+      }
+
+      showings.push({
+        id: 's-' + Date.now(),
+        propertyId: propId,
+        date, time, clientPhone, clientName, memo, feedback: ''
+      });
+
+      saveData();
+      closeModal('addShowingModal');
+      renderApp();
+      showToast('✅ 약속이 등록되었습니다');
+    }
+
+    /* Feedback Modal */
+    function openFeedbackModal(showingId) {
+      const s = showings.find(item => item.id === showingId);
+      if (!s) return;
+      document.getElementById('feedbackShowingId').value = showingId;
+      document.getElementById('feedbackText').value = s.feedback || '';
+      openModal('feedbackModal');
+    }
+
+    function saveFeedback() {
+      const id = document.getElementById('feedbackShowingId').value;
+      const text = document.getElementById('feedbackText').value.trim();
+      const s = showings.find(item => item.id === id);
+      if (s) {
+        s.feedback = text;
+        saveData();
+        closeModal('feedbackModal');
+        renderApp();
+        showToast('📝 반응 메모가 저장되었습니다');
+      }
+    }
+
+    function deleteShowing(id) {
+      if (!confirm('이 일정을 삭제하시겠습니까?')) return;
+      showings = showings.filter(s => s.id !== id);
+      saveData();
+      renderApp();
+      showToast('삭제되었습니다');
+    }
+
+    function deleteProperty(id) {
+      if (!confirm('이 매물과 관련된 모든 쇼잉 기록을 삭제하시겠습니까?')) return;
+      properties = properties.filter(p => p.id !== id);
+      showings = showings.filter(s => s.propertyId !== id);
+      saveData();
+      renderApp();
+      showToast('매물이 삭제되었습니다');
+    }
+
+    /* Settings */
+    function openSettingsModal() {
+      renderSettingsDongs();
+      document.getElementById('baseDistrict').value = settings.baseDistrict || '서울특별시 마포구';
+      openModal('settingsModal');
+    }
+
+    function renderSettingsDongs() {
+      const c = document.getElementById('settingsDongChips');
+      c.innerHTML = settings.dongs.map(d => `
+        <span class="chip" style="display:inline-flex; align-items:center; gap:5px;">
+          ${d} <span onclick="removeDong('${d}')" style="color:red; cursor:pointer;">✕</span>
+        </span>
+      `).join('');
+    }
+
+    function addDong() {
+      const v = document.getElementById('newDongText').value.trim();
+      if (!v) return;
+      if (!settings.dongs.includes(v)) {
+        settings.dongs.push(v);
+        saveData();
+        renderSettingsDongs();
+        renderDongPills();
+        document.getElementById('newDongText').value = '';
+      }
+    }
+
+    function removeDong(d) {
+      if (settings.dongs.length <= 1) return alert('최소 1개 이상의 동이 필요합니다.');
+      settings.dongs = settings.dongs.filter(item => item !== d);
+      saveData();
+      renderSettingsDongs();
+      renderDongPills();
+    }
+
+    
+    function checkInitialPinBanner() {
+      const banner = document.getElementById('initialPinBanner');
+      if (!banner) return;
+      const isInitial = (!settings.pin || settings.pin === '0000');
+      banner.style.display = isInitial ? 'flex' : 'none';
+    }
+
+    function updatePin() {
+      const v = document.getElementById('changePinInput').value.trim();
+      if (!/^\d{4}$/.test(v)) return alert('암호는 4자리 숫자여야 합니다.');
+      settings.pin = v;
+      saveData();
+      document.getElementById('changePinInput').value = '';
+      checkInitialPinBanner();
+      showToast('암호가 변경되었습니다');
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify({settings, properties, showings}, null, 2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = `쇼잉수첩_백업_${getTodayString()}.json`; a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const r = new FileReader();
+      r.onload = (evt) => {
+        try {
+          const d = JSON.parse(evt.target.result);
+          if (d.properties) {
+            settings = d.settings || settings;
+            properties = d.properties;
+            showings = d.showings || [];
+            saveData();
+            renderApp();
+            showToast('데이터가 복원되었습니다');
+          }
+        } catch(err){ alert('파일 형식 오류'); }
+      };
+      r.readAsText(file);
+    }
+
+    /* PIN Functions */
+    function pressPin(n) {
+      if (enteredPin.length < 4) {
+        enteredPin += n;
+        updateDots();
+        if (enteredPin.length === 4) setTimeout(verifyPin, 100);
+      }
+    }
+    function clearPin() { enteredPin = ''; updateDots(); }
+    function backspacePin() { enteredPin = enteredPin.slice(0, -1); updateDots(); }
+    function updateDots() {
+      for (let i = 0; i < 4; i++) {
+        const dot = document.getElementById('dot' + i);
+        if (i < enteredPin.length) dot.classList.add('filled');
+        else dot.classList.remove('filled');
+      }
+    }
+    function verifyPin() {
+      if (enteredPin === settings.pin) {
+        document.getElementById('lockScreen').style.display = 'none';
+        sessionStorage.setItem('unlocked', 'true');
+        checkInitialPinBanner();
+        clearPin();
+      } else {
+        showToast('비밀번호 오류');
+        clearPin();
+      }
+    }
+    function lockApp() {
+      sessionStorage.removeItem('unlocked');
+      clearPin();
+      document.getElementById('lockScreen').style.display = 'flex';
+    }
+
+    /* Helpers & Android Back-Key Handling */
+    window.addEventListener('popstate', (e) => {
+      const openModals = document.querySelectorAll('.modal-overlay.open');
+      if (openModals.length > 0) {
+        openModals.forEach(m => m.classList.remove('open'));
+      }
+    });
+
+    function openModal(id) {
+      history.pushState({ modalId: id }, '');
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+      if (history.state && history.state.modalId) {
+        history.back();
+      }
+    }
+    function showToast(msg) {
+      const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+    function getTodayString() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function formatDateLabel(dStr) {
+      const today = getTodayString();
+      if (dStr === today) return '오늘';
+      const parts = dStr.split('-');
+      return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+    }
+  </script>
+</body>
+</html>
