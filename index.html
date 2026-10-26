@@ -271,11 +271,11 @@
 </head>
 <body>
 
-  <!-- PIN Screen -->
+    <!-- PIN Lock Screen -->
   <div id="lockScreen">
     <div style="font-size: 38px; margin-bottom: 8px;">🔒</div>
     <div style="font-size: 22px; font-weight: 900;">중개노트</div>
-    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">4자리 암호를 입력해주세요</div>
+    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">보안을 위해 4자리 암호를 입력해 주세요</div>
     <div class="pin-dots">
       <div class="pin-dot" id="dot0"></div>
       <div class="pin-dot" id="dot1"></div>
@@ -296,6 +296,9 @@
       <button class="pin-key" onclick="pressPin('0')">0</button>
       <button class="pin-key" style="font-size: 14px;" onclick="backspacePin()">⌫</button>
     </div>
+    <button type="button" onclick="exitOrCloseApp()" style="margin-top: 24px; background: none; border: 1px solid #475569; color: #94a3b8; padding: 8px 18px; border-radius: 20px; font-size: 13px; cursor: pointer;">
+      ✕ 앱 종료하기
+    </button>
   </div>
 
   <!-- Initial PIN Alert Banner -->
@@ -313,7 +316,7 @@
       <span>🏡 중개노트</span>
     </div>
     <div class="header-btns">
-      <button class="btn-top" onclick="lockApp()" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2; font-weight:800;">🔒 로그아웃</button>
+      <button class="btn-top" onclick="lockApp()" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2; font-weight:800;">🔒 로그아웃(종료)</button>
       <button class="btn-top" onclick="openSettingsModal()">⚙️ 설정</button>
       <button class="btn-top primary" onclick="openNewPropertyModal()">➕ 새 집(주소) 등록</button>
     </div>
@@ -1430,15 +1433,37 @@
       }
     }
 
+    
+    function exitOrCloseApp() {
+      // 안드로이드 앱이면 앱 완전 종료
+      if (window.AndroidBridge && window.AndroidBridge.exitApp) {
+        window.AndroidBridge.exitApp();
+      } else {
+        // 웹 브라우저면 탭 닫기 시도 또는 종료 안내
+        window.close();
+        document.body.innerHTML = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; background:#0f172a; color:white; font-family:sans-serif; text-align:center; padding:20px;">' +
+          '<div style="font-size:48px; margin-bottom:16px;">👋</div>' +
+          '<h2 style="font-size:20px; margin-bottom:8px;">안전하게 로그아웃되었습니다</h2>' +
+          '<p style="font-size:14px; color:#94a3b8;">브라우저 창(탭)을 닫아주세요.</p>' +
+          '</div>';
+      }
+    }
+
     function lockApp() {
-      if (!confirm('화면을 잠그고 로그아웃 하시겠습니까?')) return;
+      if (!confirm('중개노트를 종료(로그아웃)하시겠습니까?')) return;
       sessionStorage.removeItem('unlocked');
       clearPin();
-      const lock = document.getElementById('lockScreen');
-      if (lock) {
-        lock.style.display = 'flex';
-        lock.style.zIndex = '999999';
+
+      // 안드로이드 앱에서는 즉시 종료 실행
+      if (window.AndroidBridge && window.AndroidBridge.exitApp) {
+        window.AndroidBridge.exitApp();
+        return;
       }
+
+      // PC 웹 브라우저 환경에서는 잠금 화면 대신 '안전하게 로그아웃되었습니다 (창 닫기)' 화면 제공
+      exitOrCloseApp();
+    }
+
     }
 
     /* Helpers & Android Back-Key Handling */
