@@ -621,7 +621,7 @@
             </div>
             <div class="form-group">
               <label class="form-label">약속 시간</label>
-              <input type="time" id="formTime" class="form-input" value="14:00">
+              <input type="time" id="formTime" class="form-input">
             </div>
           </div>
           <div class="form-row-2">
@@ -1450,7 +1450,10 @@
       document.getElementById('formTenantName').value = '';
       document.getElementById('formTenantPhone').value = '';
       document.getElementById('formPropMemo').value = '';
-      document.getElementById('formDate').value = getTodayString();
+      document.getElementById('formDate').value = '';
+      document.getElementById('formTime').value = '';
+      document.getElementById('formClientPhone').value = '';
+      document.getElementById('formClientName').value = '';
       
       // 만약 지번/동이 미리 채워져 있다면 공동비번 자동완성 시도
       if (presetJibun && !presetCommonPw) {
@@ -1609,13 +1612,13 @@
       }
       properties.unshift(newProp); // add to top
 
-      // If showing schedule filled
+      // 손님 연락처나 손님명이 입력된 경우에만 쇼잉 약속 생성
       const sDate = document.getElementById('formDate').value;
       const sTime = document.getElementById('formTime').value;
       const cPhone = document.getElementById('formClientPhone').value.trim();
       let cName = document.getElementById('formClientName').value.trim();
 
-      if (sDate && sTime) {
+      if (sDate && sTime && (cPhone || cName)) {
         if (!cName) {
           const digits = cPhone.replace(/\D/g, '');
           cName = digits.length >= 4 ? `손님 (${digits.slice(-4)})` : '방문 손님';
