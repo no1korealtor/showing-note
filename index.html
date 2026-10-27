@@ -223,9 +223,13 @@
       user-select: none;
       -webkit-user-select: none;
       touch-action: manipulation;
-      width: 72px; height: 72px; border-radius: 50%; background: #1e293b; border: 1px solid #334155;
-      font-size: 26px; font-weight: 800; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      pointer-events: auto !important;
+      cursor: pointer;
+      width: 72px; height: 72px; border-radius: 50%; background: #1e293b; border: 1.5px solid #334155;
+      font-size: 26px; font-weight: 800; color: white; display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s, transform 0.1s;
     }
+    .pin-key:active { background: #38bdf8 !important; color: #0f172a !important; transform: scale(0.92); }
     .pin-key:active { background: #334155; }
 
     #toast {
@@ -283,19 +287,19 @@
       <div class="pin-dot" id="dot3"></div>
     </div>
     <div class="pin-pad">
-      <button class="pin-key" onclick="pressPin('1')">1</button>
-      <button class="pin-key" onclick="pressPin('2')">2</button>
-      <button class="pin-key" onclick="pressPin('3')">3</button>
-      <button class="pin-key" onclick="pressPin('4')">4</button>
-      <button class="pin-key" onclick="pressPin('5')">5</button>
-      <button class="pin-key" onclick="pressPin('6')">6</button>
-      <button class="pin-key" onclick="pressPin('7')">7</button>
-      <button class="pin-key" onclick="pressPin('8')">8</button>
-      <button class="pin-key" onclick="pressPin('9')">9</button>
-      <button class="pin-key" style="font-size: 14px;" onclick="clearPin()">취소</button>
-      <button class="pin-key" onclick="pressPin('0')">0</button>
-      <button class="pin-key" style="font-size: 14px;" onclick="backspacePin()">⌫</button>
-    </div>
+        <button type="button" class="pin-key" onpointerdown="pressPin('1')">1</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('2')">2</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('3')">3</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('4')">4</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('5')">5</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('6')">6</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('7')">7</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('8')">8</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('9')">9</button>
+        <button type="button" class="pin-key" style="font-size: 14px;" onpointerdown="clearPin()">취소</button>
+        <button type="button" class="pin-key" onpointerdown="pressPin('0')">0</button>
+        <button type="button" class="pin-key" style="font-size: 16px;" onpointerdown="backspacePin()">⌫</button>
+      </div>
     <button type="button" onclick="exitOrCloseApp()" style="margin-top: 24px; background: none; border: 1px solid #475569; color: #94a3b8; padding: 8px 18px; border-radius: 20px; font-size: 13px; cursor: pointer;">
       ✕ 앱 종료하기
     </button>
@@ -1405,10 +1409,13 @@
     });
 
     function pressPin(n) {
+      if (typeof n !== 'string') n = String(n);
       if (enteredPin.length < 4) {
         enteredPin += n;
         updateDots();
-        if (enteredPin.length === 4) setTimeout(verifyPin, 100);
+        if (enteredPin.length === 4) {
+          setTimeout(verifyPin, 80);
+        }
       }
     }
     function clearPin() { enteredPin = ''; updateDots(); }
@@ -1462,8 +1469,6 @@
 
       // PC 웹 브라우저 환경에서는 잠금 화면 대신 '안전하게 로그아웃되었습니다 (창 닫기)' 화면 제공
       exitOrCloseApp();
-    }
-
     }
 
     /* Helpers & Android Back-Key Handling */
