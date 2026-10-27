@@ -275,7 +275,67 @@
 </head>
 <body>
 
-    <!-- PIN Lock Screen -->
+  
+  <!-- 매물 정리(숨기기 vs 완전삭제) 모달 -->
+  <div class="modal-overlay" id="organizeModal">
+    <div class="modal-sheet" style="max-width: 420px; margin: auto; border-radius: 16px;">
+      <div class="modal-title">
+        <span>📁 소중한 매물 자산 보호</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('organizeModal')">✕</span>
+      </div>
+      <input type="hidden" id="targetOrganizePropId">
+      
+      <div style="margin-bottom: 14px;">
+        <div id="targetOrganizePropName" style="font-size: 16px; font-weight: 800; color: #1e293b; margin-bottom: 4px;"></div>
+        <p style="font-size: 13px; color: #64748b; line-height: 1.5;">
+          이 매물을 어떻게 처리할까요? 소중한 비밀번호와 임대인 연락처는 언제든 살릴 수 있도록 보관을 추천합니다.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- 숨기기/보관 버튼 -->
+        <button type="button" onclick="archiveCurrentProperty()" style="
+          background: #eff6ff; 
+          border: 1.5px solid #3b82f6; 
+          border-radius: 10px; 
+          padding: 12px 14px; 
+          text-align: left; 
+          cursor: pointer;
+        ">
+          <div style="font-size: 14px; font-weight: 800; color: #1d4ed8; display: flex; align-items: center; justify-content: space-between;">
+            <span>📦 숨기기 / 계약완료 보관</span>
+            <span style="background: #2563eb; color: white; font-size: 11px; padding: 2px 7px; border-radius: 10px;">권장</span>
+          </div>
+          <div style="font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.4;">
+            메인 목록에서 깔끔하게 숨겨집니다. 비번/임대인 정보는 '숨긴 매물함'에 안전하게 보존되며 언제든 다시 살릴 수 있습니다.
+          </div>
+        </button>
+
+        <!-- 완전 삭제 버튼 -->
+        <button type="button" onclick="permanentlyDeleteCurrentProperty()" style="
+          background: #fef2f2; 
+          border: 1.5px solid #fecaca; 
+          border-radius: 10px; 
+          padding: 12px 14px; 
+          text-align: left; 
+          cursor: pointer;
+        ">
+          <div style="font-size: 14px; font-weight: 800; color: #dc2626;">
+            🗑️ 완전 삭제 (영구 제거)
+          </div>
+          <div style="font-size: 12px; color: #991b1b; margin-top: 4px; line-height: 1.4;">
+            물건지 비밀번호와 모든 기록을 복구할 수 없도록 영구히 삭제합니다.
+          </div>
+        </button>
+      </div>
+
+      <div style="margin-top: 14px; text-align: center;">
+        <button type="button" class="btn-top" style="width: 100%; padding: 10px;" onclick="closeModal('organizeModal')">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIN Lock Screen -->
   <div id="lockScreen">
     <div style="font-size: 38px; margin-bottom: 8px;">🔒</div>
     <div style="font-size: 22px; font-weight: 900;">중개노트</div>
@@ -879,17 +939,24 @@
 
       // Filter properties
       let list = properties.filter(p => {
-        if (currentDongFilter !== 'ALL' && p.dong !== currentDongFilter) return false;
-        if (searchWord) {
-          const matchAddr = `${p.dong} ${p.jibun} ${p.ho || ''} ${p.building || ''}`.toLowerCase();
-          if (matchAddr.includes(searchWord)) return true;
-          // check if showings match client name or phone
-          const pShows = showings.filter(s => s.propertyId === p.id);
-          const matchClient = pShows.some(s => (s.clientName || '').toLowerCase().includes(searchWord) || (s.clientPhone || '').includes(searchWord));
-          return matchClient;
-        }
-        return true;
-      });
+          // 보관함 필터인 경우
+          if (currentDongFilter === 'ARCHIVED') {
+            if (!p.isArchived) return false;
+          } else {
+            // 일반 동 필터인 경우 보관된 매물은 숨김
+            if (p.isArchived) return false;
+            if (currentDongFilter !== 'ALL' && p.dong !== currentDongFilter) return false;
+          }
+
+          if (searchWord) {
+            const matchAddr = `${p.dong} ${p.jibun} ${p.ho || ''} ${p.building || ''}`.toLowerCase();
+            if (matchAddr.includes(searchWord)) return true;
+            const pShows = showings.filter(s => s.propertyId === p.id);
+            const matchClient = pShows.some(s => (s.clientName || '').toLowerCase().includes(searchWord) || (s.clientPhone || '').includes(searchWord));
+            return matchClient;
+          }
+          return true;
+        });
 
       if (list.length === 0) {
         document.getElementById('propCount').textContent = `총 0개 집`;
@@ -1046,7 +1113,12 @@
 
               <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 12px; padding-top:6px; border-top:1px dashed #e2e8f0;">
                 <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 물건지 정보/비번 수정</button>
-                <button class="btn-mini-act" onclick="deleteProperty('${p.id}')" style="color:#ef4444; border:none; font-size:11px;">매물 삭제</button>
+                ${p.isArchived ? `
+                  <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:4px 10px; border-radius:6px;">♻️ 메인으로 살리기</button>
+                  <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
+                ` : `
+                  <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📁 매물정리</button>
+                `}
               </div>
             </div>
           </div>
@@ -1057,13 +1129,21 @@
     }
 
     function renderDongPills() {
-      const container = document.getElementById('dongPills');
-      let html = `<button class="dong-pill ${currentDongFilter === 'ALL' ? 'active' : ''}" onclick="setDongFilter('ALL')">전체 동</button>`;
-      settings.dongs.forEach(d => {
-        html += `<button class="dong-pill ${currentDongFilter === d ? 'active' : ''}" onclick="setDongFilter('${d}')">${d}</button>`;
-      });
-      container.innerHTML = html;
-    }
+        const container = document.getElementById('dongPills');
+        const hiddenCount = properties.filter(p => p.isArchived).length;
+        
+        let html = `<button class="dong-pill ${currentDongFilter === 'ALL' ? 'active' : ''}" onclick="setDongFilter('ALL')">전체 동</button>`;
+        settings.dongs.forEach(d => {
+          html += `<button class="dong-pill ${currentDongFilter === d ? 'active' : ''}" onclick="setDongFilter('${d}')">${d}</button>`;
+        });
+        
+        // 숨김/보관 필터 칩 (숨긴 매물이 있을 때 또는 선택 중일 때 노출)
+        if (hiddenCount > 0 || currentDongFilter === 'ARCHIVED') {
+          html += `<button class="dong-pill ${currentDongFilter === 'ARCHIVED' ? 'active' : ''}" style="background:${currentDongFilter === 'ARCHIVED' ? '#1e293b' : '#f1f5f9'}; color:${currentDongFilter === 'ARCHIVED' ? '#fff' : '#475569'}; border-color:${currentDongFilter === 'ARCHIVED' ? '#0f172a' : '#cbd5e1'}; font-weight:800;" onclick="setDongFilter('ARCHIVED')">📦 보관·숨김 (${hiddenCount})</button>`;
+        }
+
+        container.innerHTML = html;
+      }
 
     function setDongFilter(d) {
       currentDongFilter = d;
@@ -1287,7 +1367,57 @@
       showToast('삭제되었습니다');
     }
 
+    
+    function openOrganizeModal(propId) {
+      const p = properties.find(item => item.id === propId);
+      if (!p) return;
+      document.getElementById('targetOrganizePropId').value = propId;
+      document.getElementById('targetOrganizePropName').textContent = `${p.dong} ${p.jibun} ${p.ho ? p.ho + ' ' : ''}(${p.building || '건물명 미입력'})`;
+      openModal('organizeModal');
+    }
+
+    function archiveCurrentProperty() {
+      const id = document.getElementById('targetOrganizePropId').value;
+      const p = properties.find(item => item.id === id);
+      if (!p) return;
+
+      p.isArchived = true;
+      p.archivedAt = getTodayString();
+      saveData();
+      closeModal('organizeModal');
+      renderApp();
+      showToast('📦 매물이 안전하게 보관되었습니다! 언제든 다시 살릴 수 있습니다.');
+    }
+
+    function restoreProperty(id) {
+      const p = properties.find(item => item.id === id);
+      if (!p) return;
+
+      p.isArchived = false;
+      saveData();
+      renderApp();
+      showToast('🎉 매물이 메인 목록으로 다시 복원되었습니다!');
+    }
+
+    function permanentlyDeleteCurrentProperty() {
+      const id = document.getElementById('targetOrganizePropId').value;
+      if (!confirm('경고: 정말로 이 매물과 관련된 모든 비밀번호, 약속 기록을 영구히 삭제하시겠습니까?\n(삭제 후에는 절대 복원할 수 없습니다!)')) {
+        return;
+      }
+
+      properties = properties.filter(p => p.id !== id);
+      showings = showings.filter(s => s.propertyId !== id);
+      saveData();
+      closeModal('organizeModal');
+      renderApp();
+      showToast('매물이 영구히 삭제되었습니다.');
+    }
+
     function deleteProperty(id) {
+      openOrganizeModal(id);
+    }
+
+    function _old_deleteProperty(id) {
       if (!confirm('이 매물과 관련된 모든 쇼잉 기록을 삭제하시겠습니까?')) return;
       properties = properties.filter(p => p.id !== id);
       showings = showings.filter(s => s.propertyId !== id);
