@@ -258,8 +258,8 @@
     /* Initial PIN Warning Banner */
     #initialPinBanner {
       background: #FFFBEB;
-      border-bottom: 1.5px solid #FDE68A;
-      padding-top: calc(10px + env(safe-area-inset-top, 0px));
+      border-bottom: 2px solid #FCD34D;
+      padding-top: calc(26px + env(safe-area-inset-top, 0px));
       padding-bottom: 10px;
       padding-left: calc(14px + env(safe-area-inset-left, 0px));
       padding-right: calc(14px + env(safe-area-inset-right, 0px));
@@ -271,6 +271,9 @@
       position: sticky;
       top: 0;
       z-index: 100;
+    }
+    body.no-banner header {
+      padding-top: calc(28px + env(safe-area-inset-top, 0px));
     }
     #initialPinBanner .banner-left {
       display: flex;
@@ -386,7 +389,7 @@
   </div>
 
   <!-- Initial PIN Alert Banner -->
-  <div id="initialPinBanner" style="display:flex; background:#FFFBEB; border-bottom:2px solid #FCD34D; padding:10px 14px; align-items:center; justify-content:space-between; font-size:13px; color:#92400E; position:sticky; top:0; z-index:100;">
+  <div id="initialPinBanner" style="display:flex;">
     <div class="banner-left">
       <span>🔒</span>
       <span>초기비밀번호(0000) 사용 중입니다. 나만의 암호로 변경해 주세요!</span>
@@ -1552,6 +1555,11 @@
       if (!banner) return;
       const isInitial = (!settings.pin || settings.pin === '0000');
       banner.style.display = isInitial ? 'flex' : 'none';
+      if (isInitial) {
+        document.body.classList.remove('no-banner');
+      } else {
+        document.body.classList.add('no-banner');
+      }
     }
 
     function updatePin() {
