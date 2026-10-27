@@ -314,6 +314,92 @@
       white-space: nowrap;
       margin-left: 8px;
     }
+  
+    /* Grouped Address Card Architecture */
+    .complex-card {
+      background: var(--card); border-radius: 14px; border: 1.5px solid #cbd5e1;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.06); margin-bottom: 22px; overflow: hidden;
+      border-top: 4px solid #1e40af;
+    }
+    .complex-header {
+      padding: 14px 16px; background: #ffffff; border-bottom: 2px solid #e2e8f0;
+    }
+    .complex-addr-title {
+      font-size: 19px; font-weight: 900; color: #0f172a; line-height: 1.35; display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
+    }
+    .complex-building-title {
+      font-size: 13.5px; font-weight: 700; color: #475569; margin-top: 3px; display: flex; align-items: center; gap: 4px;
+    }
+    .complex-sub-bar {
+      display: flex; gap: 6px; align-items: center; margin-top: 10px;
+    }
+    .btn-complex-act {
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
+      padding: 6px 12px; font-size: 12.5px; font-weight: 700; color: #334155; text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;
+      flex: 1; text-align: center;
+    }
+    .btn-complex-act.map {
+      background: #f0fdf4; border-color: #bbf7d0; color: #15803d;
+    }
+    .btn-complex-act.add-unit {
+      background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; font-weight: 800;
+    }
+
+    /* Building Dong Section inside Complex */
+    .dong-group-section {
+      border-bottom: 1.5px solid #e2e8f0; background: #fbfcfe;
+    }
+    .dong-group-section:last-child {
+      border-bottom: none;
+    }
+    .dong-group-header {
+      background: #f1f5f9; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0; font-size: 13.5px; font-weight: 800; color: #1e293b;
+    }
+    .dong-group-badge {
+      display: inline-flex; align-items: center; gap: 4px; background: #1e293b; color: white;
+      font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+    }
+    .dong-common-pw-badge {
+      font-size: 12.5px; font-weight: 700; color: #475569; background: #ffffff; border: 1px solid #cbd5e1;
+      padding: 3px 8px; border-radius: 6px;
+    }
+    .dong-common-pw-badge span {
+      color: #2563eb; font-weight: 900; font-family: monospace;
+    }
+
+    /* Individual Unit (Ho) Container inside Dong */
+    .unit-card-item {
+      padding: 12px 14px; border-bottom: 1px dashed #e2e8f0; background: #ffffff;
+    }
+    .unit-card-item:last-child {
+      border-bottom: none;
+    }
+    .unit-header-row {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px;
+    }
+    .unit-ho-tag {
+      font-size: 17px; font-weight: 900; color: #1d4ed8; background: #eff6ff;
+      border: 1px solid #bfdbfe; padding: 2px 9px; border-radius: 6px;
+    }
+    .unit-door-pw {
+      font-size: 13px; font-weight: 700; color: #334155;
+    }
+    .unit-door-pw span {
+      font-size: 15px; font-weight: 900; color: #1e40af; font-family: monospace;
+    }
+    .unit-contacts-row {
+      display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px;
+    }
+    .unit-memo-box {
+      margin-top: 8px; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px;
+      padding: 7px 10px; font-size: 12.5px; color: #92400e; display: flex; gap: 6px; align-items: flex-start;
+    }
+    .unit-actions-row {
+      display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #f1f5f9;
+    }
+
   </style>
 </head>
 <body>
@@ -463,26 +549,31 @@
           <input type="hidden" id="formDong" required>
         </div>
 
-        <div class="form-row-2">
-          <div class="form-group">
-            <label class="form-label">지번 <span style="color:red">*</span></label>
-            <input type="text" id="formJibun" class="form-input" placeholder="예: 234-12" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">호수 / 층수</label>
-            <input type="text" id="formHo" class="form-input" placeholder="예: 201호">
-          </div>
+        <div class="form-group">
+          <label class="form-label">지번 <span style="color:red">*</span></label>
+          <input type="text" id="formJibun" class="form-input" placeholder="예: 234-12 (번지수)" required oninput="onJibunOrDongChanged()">
         </div>
 
         <div class="form-group">
-          <label class="form-label">건물명 (선택)</label>
-          <input type="text" id="formBuilding" class="form-input" placeholder="예: 성산아트빌">
+          <label class="form-label">건물 / 단지명 (선택)</label>
+          <input type="text" id="formBuilding" class="form-input" placeholder="예: 성산시영, 고건빌라, 현대아파트">
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">건물 동 (아파트인 경우)</label>
+            <input type="text" id="formBDong" class="form-input" placeholder="예: 101동, 가동 (빌라는 비워두기)" oninput="onJibunOrDongChanged()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">호수 / 층수 <span style="color:red">*</span></label>
+            <input type="text" id="formHo" class="form-input" placeholder="예: 302호" required>
+          </div>
         </div>
 
         <!-- 2. 비밀번호 & 임대인 -->
         <div class="form-row-2">
           <div class="form-group">
-            <label class="form-label">공동현관 비번</label>
+            <label class="form-label">공동현관 비번 <span style="font-size:11px; color:#2563eb; font-weight:normal;">(같은 동/빌라는 자동공유)</span></label>
             <input type="text" id="formCommonPw" class="form-input" placeholder="예: #1234* / 종1234">
           </div>
           <div class="form-group">
@@ -715,6 +806,7 @@
             jibun: item.jibun || '',
             ho: item.ho || '',
             building: item.building || item.buildingName || '',
+            bDong: (item.bDong && item.bDong.trim() !== '') ? item.bDong.trim() : '0',
             doorPw: item.doorPw || '',
             commonPw: item.commonPw || '',
             ownerName: item.ownerName || '',
@@ -1013,24 +1105,22 @@
 
       // Filter properties
       let list = properties.filter(p => {
-          // 보관함 필터인 경우
-          if (currentDongFilter === 'ARCHIVED') {
-            if (!p.isArchived) return false;
-          } else {
-            // 일반 동 필터인 경우 보관된 매물은 숨김
-            if (p.isArchived) return false;
-            if (currentDongFilter !== 'ALL' && p.dong !== currentDongFilter) return false;
-          }
+        if (currentDongFilter === 'ARCHIVED') {
+          if (!p.isArchived) return false;
+        } else {
+          if (p.isArchived) return false;
+          if (currentDongFilter !== 'ALL' && p.dong !== currentDongFilter) return false;
+        }
 
-          if (searchWord) {
-            const matchAddr = `${p.dong} ${p.jibun} ${p.ho || ''} ${p.building || ''} ${p.tenantName || ''} ${p.tenantPhone || ''} ${p.propMemo || ''}`.toLowerCase();
-            if (matchAddr.includes(searchWord)) return true;
-            const pShows = showings.filter(s => s.propertyId === p.id);
-            const matchClient = pShows.some(s => (s.clientName || '').toLowerCase().includes(searchWord) || (s.clientPhone || '').includes(searchWord));
-            return matchClient;
-          }
-          return true;
-        });
+        if (searchWord) {
+          const matchAddr = `${p.dong} ${p.jibun} ${p.bDong || ''} ${p.ho || ''} ${p.building || ''} ${p.tenantName || ''} ${p.tenantPhone || ''} ${p.propMemo || ''}`.toLowerCase();
+          if (matchAddr.includes(searchWord)) return true;
+          const pShows = showings.filter(s => s.propertyId === p.id);
+          const matchClient = pShows.some(s => (s.clientName || '').toLowerCase().includes(searchWord) || (s.clientPhone || '').includes(searchWord));
+          return matchClient;
+        }
+        return true;
+      });
 
       if (list.length === 0) {
         document.getElementById('propCount').textContent = `총 0개 집`;
@@ -1038,7 +1128,7 @@
           <div style="text-align:center; padding: 50px 20px; color:#94a3b8;">
             <div style="font-size:36px; margin-bottom:8px;">🏡</div>
             <p style="font-weight:700; color:#475569;">등록된 집이 없습니다</p>
-            <p style="font-size:13px; margin-top:4px;">우측 상단 <b>[➕ 새 집 등록]</b>을 눌러 주소를 추가하세요.</p>
+            <p style="font-size:13px; margin-top:4px;">우측 상단 <b>[➕ 새 매물 등록]</b>을 눌러 주소를 추가하세요.</p>
           </div>
         `;
         return;
@@ -1047,169 +1137,270 @@
       // Sort Bar UI Update
       document.getElementById('sortScheduleBtn').classList.toggle('active', currentSortBy === 'schedule');
       document.getElementById('sortAddrBtn').classList.toggle('active', currentSortBy === 'address');
-      document.getElementById('propCount').textContent = `총 ${list.length}개 집`;
+      document.getElementById('propCount').textContent = `총 ${list.length}개 호수`;
 
-      // SORT PROPERTIES: SCHEDULE-FIRST vs ADDRESS
-      list.sort((a, b) => {
-        if (currentSortBy === 'schedule') {
-          // Earliest upcoming showing (today or future)
-          const aUp = showings.filter(s => s.propertyId === a.id && s.date >= today)
-                              .sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time))[0];
-          const bUp = showings.filter(s => s.propertyId === b.id && s.date >= today)
-                              .sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time))[0];
-
-          if (aUp && bUp) {
-            return (aUp.date + aUp.time).localeCompare(bUp.date + bUp.time);
-          }
-          if (aUp && !bUp) return -1; // a comes first
-          if (!aUp && bUp) return 1;  // b comes first
-
-          // If neither has upcoming, sort by latest past showing
-          const aPast = showings.filter(s => s.propertyId === a.id)
-                                .sort((x, y) => (y.date + y.time).localeCompare(x.date + x.time))[0];
-          const bPast = showings.filter(s => s.propertyId === b.id)
-                                .sort((x, y) => (y.date + y.time).localeCompare(x.date + x.time))[0];
-          if (aPast && bPast) {
-            return (bPast.date + bPast.time).localeCompare(aPast.date + aPast.time);
-          }
-          if (aPast && !bPast) return -1;
-          if (!aPast && bPast) return 1;
-          return (b.id || '').localeCompare(a.id || '');
-        } else {
-          return `${a.dong} ${a.jibun}`.localeCompare(`${b.dong} ${b.jibun}`, 'ko');
+      // GROUPING LOGIC: Group by (dong + '___' + jibun)
+      const complexMap = new Map();
+      list.forEach(p => {
+        const key = `${p.dong}___${p.jibun}`;
+        if (!complexMap.has(key)) {
+          complexMap.set(key, {
+            dong: p.dong,
+            jibun: p.jibun,
+            building: p.building || '',
+            props: []
+          });
         }
+        const group = complexMap.get(key);
+        if (!group.building && p.building) {
+          group.building = p.building;
+        }
+        group.props.push(p);
       });
 
+      const complexList = Array.from(complexMap.values());
+
+      // Helper to find nearest upcoming showing for any prop in complex
+      function getNearestUpcomingShowing(props) {
+        const allShows = [];
+        props.forEach(p => {
+          showings.filter(s => s.propertyId === p.id && s.date >= today).forEach(s => {
+            allShows.push({ s, prop: p });
+          });
+        });
+        if (allShows.length === 0) return null;
+        allShows.sort((a, b) => (a.s.date + a.s.time).localeCompare(b.s.date + b.s.time));
+        return allShows[0];
+      }
+
+      // Sort Complex List
+      complexList.sort((a, b) => {
+        if (currentSortBy === 'schedule') {
+          const aUp = getNearestUpcomingShowing(a.props);
+          const bUp = getNearestUpcomingShowing(b.props);
+          if (aUp && bUp) {
+            return (aUp.s.date + aUp.s.time).localeCompare(bUp.s.date + bUp.s.time);
+          }
+          if (aUp && !bUp) return -1;
+          if (!aUp && bUp) return 1;
+        }
+        return `${a.dong} ${a.jibun}`.localeCompare(`${b.dong} ${b.jibun}`, 'ko');
+      });
+
+      // RENDER ALL COMPLEXES
       let html = '';
-      list.forEach(p => {
-        const fullAddr = `${settings.baseDistrict} ${p.dong} ${p.jibun}`;
+      complexList.forEach(complex => {
+        const fullAddr = `${settings.baseDistrict} ${complex.dong} ${complex.jibun}`;
         const naverUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(fullAddr)}`;
-
-        // Separate showings into Upcoming (today or future) vs Past (before today)
-        const pShows = showings.filter(s => s.propertyId === p.id);
-        const upcomingShows = pShows
-          .filter(s => s.date >= today)
-          .sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time)); // Soonest first
-
-        const pastShows = pShows
-          .filter(s => s.date < today)
-          .sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time)); // Most recent past first
-
-        const nearestShowing = upcomingShows[0];
-        const scheduleBadge = nearestShowing ? `
-          <span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:12px; font-weight:800; padding:2px 8px; border-radius:6px; margin-left:6px;">
-            ⏰ ${formatDateLabel(nearestShowing.date)} ${nearestShowing.time} (${nearestShowing.clientName || '손님'})
+        
+        // Nearest showing badge for the whole complex (if any)
+        const nearestComplexShow = getNearestUpcomingShowing(complex.props);
+        const complexBadge = nearestComplexShow ? `
+          <span style="display:inline-flex; align-items:center; gap:4px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:12px; font-weight:800; padding:2px 8px; border-radius:6px; margin-left:4px;">
+            ⏰ ${formatDateLabel(nearestComplexShow.s.date)} ${nearestComplexShow.s.time} (${nearestComplexShow.prop.bDong && nearestComplexShow.prop.bDong !== '0' ? nearestComplexShow.prop.bDong + ' ' : ''}${nearestComplexShow.prop.ho || ''})
           </span>
         ` : '';
 
+        // Group props by building Dong (bDong)
+        // bDong: '0' means general villa/single building without specific dong name
+        const dongMap = new Map();
+        complex.props.forEach(p => {
+          const bDong = (p.bDong && p.bDong.trim() !== '') ? p.bDong.trim() : '0';
+          if (!dongMap.has(bDong)) {
+            dongMap.set(bDong, []);
+          }
+          dongMap.get(bDong).push(p);
+        });
+
+        // Sort dongs: '0' first, or alphanumerical (101동, 102동)
+        const sortedDongs = Array.from(dongMap.keys()).sort((a, b) => {
+          if (a === '0') return -1;
+          if (b === '0') return 1;
+          return a.localeCompare(b, undefined, { numeric: true });
+        });
+
+        // Common building name or fallback
+        const complexBuildingName = complex.building || (complex.props.find(p => p.building)?.building || '');
+
         html += `
-          <div class="prop-card">
-            <!-- 1. 주소 (최상단 - 별표 불릿 및 뚜렷한 구분) -->
-            <div class="card-top">
-              <div class="addr-header">
-                <div class="addr-main">
-                  <span class="star-bullet">★</span>
-                  <span class="addr-dong-badge">${p.dong}</span>
-                  <span>${p.jibun}</span>
-                  ${p.ho ? `<span class="addr-ho">${p.ho}</span>` : ''}
-                  ${scheduleBadge}
+          <div class="complex-card">
+            <!-- Complex Top Header (Address, Building, Map, Add Unit) -->
+            <div class="complex-header">
+              <div class="complex-addr-title">
+                <span class="star-bullet">★</span>
+                <span class="addr-dong-badge">${complex.dong}</span>
+                <span>${complex.jibun}</span>
+                ${complexBadge}
+              </div>
+              ${complexBuildingName ? `<div class="complex-building-title">🏢 ${escapeHtml(complexBuildingName)}</div>` : ''}
+
+              <div class="complex-sub-bar">
+                <a href="${naverUrl}" target="_blank" class="btn-complex-act map">📍 단지/지번 지도열기</a>
+                <button type="button" class="btn-complex-act add-unit" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '', '${escapeHtml(complexBuildingName)}')">➕ 이 지번에 호수 추가</button>
+              </div>
+            </div>
+
+            <!-- Building Dong Groups -->
+            <div class="complex-dongs-container">
+        `;
+
+        sortedDongs.forEach(bDong => {
+          const propsInDong = dongMap.get(bDong);
+          // Common password for this dong (shared among units)
+          const dongCommonPw = propsInDong.find(p => p.commonPw && p.commonPw.trim() !== '')?.commonPw || '';
+          const isRealDong = (bDong !== '0');
+
+          html += `
+            <div class="dong-group-section">
+              <!-- Dong Header (If apartment/multi-dong: show dong name; if villa: show clean common-pw line) -->
+              <div class="dong-group-header">
+                <div>
+                  ${isRealDong ? `
+                    <span class="dong-group-badge">🏢 ${escapeHtml(bDong)}</span>
+                    <span style="font-size:12px; color:#64748b; margin-left:6px;">(${propsInDong.length}개 호수)</span>
+                  ` : `
+                    <span style="font-size:13px; font-weight:800; color:#334155;">🏠 건물 매물 (${propsInDong.length}개 호수)</span>
+                  `}
                 </div>
-                ${p.building ? `<div class="addr-building">🏢 ${p.building}</div>` : ''}
-                
-                <!-- 가로 한 줄로 시원하게 배치된 수정 / 지도열기 바 -->
-                <div class="addr-actions-bar">
-                  <a href="${naverUrl}" target="_blank" class="btn-card-action map">📍 지도열기</a>
-                  <button type="button" class="btn-card-action" onclick="openEditPropertyModal('${p.id}')">✏️ 수정</button>
+                <div class="dong-common-pw-badge">
+                  🔑 공동: <span>${dongCommonPw || '없음'}</span>
                 </div>
               </div>
 
-              <!-- 비번 & 세입자/임대인 연락처 (한눈에) -->
-              <div class="pw-line">
-                <div class="pw-text">🔑 공동: <span>${p.commonPw || '없음'}</span></div>
-                <div class="pw-text">🚪 세대: <span style="color:#1d4ed8;">${p.doorPw || '미등록'}</span></div>
-                
-                <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+              <!-- Units inside this Dong -->
+              <div class="dong-units-list">
+          `;
+
+          // Sort units by ho (e.g. 101호, 201호, 302호)
+          propsInDong.sort((a, b) => (a.ho || '').localeCompare(b.ho || '', undefined, { numeric: true }));
+
+          propsInDong.forEach(p => {
+            // Unit showings
+            const pShows = showings.filter(s => s.propertyId === p.id);
+            const upcomingShows = pShows
+              .filter(s => s.date >= today)
+              .sort((a,b) => (a.date + a.time).localeCompare(b.date + b.time));
+            const pastShows = pShows
+              .filter(s => s.date < today)
+              .sort((a,b) => (b.date + b.time).localeCompare(a.date + a.time));
+
+            const nearestShowing = upcomingShows[0];
+            const unitScheduleBadge = nearestShowing ? `
+              <span style="display:inline-flex; align-items:center; gap:3px; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:11.5px; font-weight:800; padding:2px 7px; border-radius:5px;">
+                ⏰ ${formatDateLabel(nearestShowing.date)} ${nearestShowing.time}
+              </span>
+            ` : '';
+
+            html += `
+              <div class="unit-card-item">
+                <!-- Unit Header Row (Ho, Door PW, Schedule badge) -->
+                <div class="unit-header-row">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="unit-ho-tag">🚪 ${p.ho || '호수 미등록'}</span>
+                    ${unitScheduleBadge}
+                  </div>
+                  <div class="unit-door-pw">
+                    세대 도어락: <span>${p.doorPw || '미등록'}</span>
+                  </div>
+                </div>
+
+                <!-- Unit Contacts Row (Tenant & Owner Call Buttons) -->
+                <div class="unit-contacts-row">
                   ${p.tenantPhone ? `
-                    <a href="tel:${p.tenantPhone}" class="btn-tenant-call" style="background:#e0f2fe; border:1px solid #bae6fd; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#0369a1; text-decoration:none;">📞 세입자(${p.tenantName || '거주자'}) 통화</a>
+                    <a href="tel:${p.tenantPhone}" class="btn-tenant-call" style="background:#e0f2fe; border:1px solid #bae6fd; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#0369a1; text-decoration:none;">📞 세입자(${escapeHtml(p.tenantName || '거주자')}) 통화</a>
                   ` : ''}
                   ${p.ownerPhone ? `
-                    <a href="tel:${p.ownerPhone}" class="btn-owner-call">📞 ${p.ownerName || '임대인'} 통화</a>
+                    <a href="tel:${p.ownerPhone}" class="btn-owner-call" style="background:#fef3c7; border:1px solid #fde68a; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#92400e; text-decoration:none;">📞 ${escapeHtml(p.ownerName || '임대인')} 통화</a>
                   ` : ''}
-                  ${!p.tenantPhone && !p.ownerPhone ? `<span style="font-size:12px; color:#94a3b8;">연락처 없음</span>` : ''}
-                </div>
-              </div>
-
-              ${p.propMemo ? `
-                <div style="margin-top:8px; background:#fffbeb; border:1px solid #fef3c7; border-radius:6px; padding:7px 10px; font-size:12.5px; color:#92400e; display:flex; gap:6px; align-items:flex-start;">
-                  <span style="font-size:14px; line-height:1;">💡</span>
-                  <span style="flex:1; line-height:1.4;">${escapeHtml(p.propMemo)}</span>
-                </div>
-              ` : ''}
-            </div>
-
-            <!-- 2. 들여쓰기된 가지: 보러오는 손님 일정 (트리 연결선 포함) -->
-            <div class="showing-tree">
-              <div class="tree-header-row">
-                <span class="tree-header-label">
-                  <span style="font-size:15px;">↳</span> <b>매달린 약속 목록</b>
-                </span>
-                <button class="btn-add-schedule" onclick="openAddShowingModal('${p.id}', '${p.dong} ${p.jibun} ${p.ho||''}')">+ 약속추가</button>
-              </div>
-
-              <!-- 깊은 들여쓰기 컨테이너 -->
-              <div class="tree-branch-container">
-                <!-- 앞으로 올 미래 일정 (맨 앞/맨 위) -->
-                <div class="tree-section-title title-upcoming">
-                  <span>🗓️ 앞으로 올 약속 (${upcomingShows.length}건)</span>
+                  ${!p.tenantPhone && !p.ownerPhone ? `<span style="font-size:12px; color:#94a3b8;">등록된 연락처 없음</span>` : ''}
                 </div>
 
-                ${upcomingShows.length > 0 ? upcomingShows.map(s => `
-                  <div class="schedule-item-future">
-                    <div class="future-head">
-                      <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
-                      <span class="future-client">${s.clientName || '손님'}</span>
-                      ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 손님통화</a>` : ''}
-                    </div>
-                    ${s.memo ? `<div class="future-memo">💡 ${s.memo}</div>` : ''}
-                    ${s.feedback ? `<div style="font-size:12.5px; color:#15803d; margin-top:4px;">✅ 반응: ${s.feedback}</div>` : ''}
-                    <div class="future-actions">
-                      <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">📝 반응/메모</button>
-                      <button class="btn-mini-act" onclick="deleteShowing('${s.id}')" style="color:red;">취소</button>
-                    </div>
+                <!-- Unit Special Memo (if any) -->
+                ${p.propMemo ? `
+                  <div class="unit-memo-box">
+                    <span style="font-size:14px; line-height:1;">💡</span>
+                    <span style="flex:1; line-height:1.4;">${escapeHtml(p.propMemo)}</span>
                   </div>
-                `).join('') : `
-                  <div style="font-size:12.5px; color:#94a3b8; padding: 2px 0 10px;">예정된 약속 없음</div>
-                `}
-
-                <!-- 지난 안내 기록 (과거는 차분하게 아래로) -->
-                ${pastShows.length > 0 ? `
-                  <div class="tree-section-title title-past">
-                    <span>📜 지난 안내 기록 (${pastShows.length}건)</span>
-                  </div>
-                  ${pastShows.map(s => `
-                    <div class="schedule-item-past">
-                      <div>
-                        <span class="past-date">· ${s.date} ${s.time}</span> ·
-                        <span class="past-client">${s.clientName || '손님'}</span>
-                        ${s.clientPhone ? `<span style="font-size:11px; color:#94a3b8;">(${s.clientPhone})</span>` : ''}
-                      </div>
-                      ${s.feedback ? `<div class="past-feedback">📝 ${s.feedback}</div>` : `<div style="font-size:11px; color:#94a3b8; margin-top:2px;">(기록된 반응 없음)</div>`}
-                    </div>
-                  `).join('')}
                 ` : ''}
-              </div>
 
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 12px; padding-top:6px; border-top:1px dashed #e2e8f0;">
-                <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 물건지 정보/비번 수정</button>
-                ${p.isArchived ? `
-                  <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:4px 10px; border-radius:6px;">♻️ 메인으로 살리기</button>
-                  <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
-                ` : `
-                  <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📁 매물정리</button>
-                `}
+                <!-- Indented Showing Tree for this Unit -->
+                <div class="showing-tree" style="margin-top:10px; border-radius:8px; background:#f8fafc; padding:10px 12px;">
+                  <div class="tree-header-row">
+                    <span class="tree-header-label">
+                      <span>🤝 쇼잉 약속 & 현장 브리핑</span>
+                      <span style="font-size:11px; background:#e0e7ff; color:#3730a3; padding:1px 6px; border-radius:10px;">${pShows.length}건</span>
+                    </span>
+                    <button type="button" class="btn-add-schedule" onclick="openAddShowingModal('${p.id}')">➕ 일정추가</button>
+                  </div>
+
+                  <div class="tree-branch-container">
+                    ${upcomingShows.length === 0 && pastShows.length === 0 ? `
+                      <div style="font-size:12px; color:#94a3b8; padding: 4px 0;">
+                        아직 등록된 쇼잉 일정이 없습니다. [➕ 일정추가]로 손님 약속을 기록하세요.
+                      </div>
+                    ` : ''}
+
+                    ${upcomingShows.length > 0 ? `
+                      <div class="tree-section-title title-upcoming">
+                        <span>🗓️ 예정된 쇼잉 (${upcomingShows.length})</span>
+                      </div>
+                      ${upcomingShows.map(s => `
+                        <div class="schedule-item-future">
+                          <div class="future-head">
+                            <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
+                            <span class="future-client">${escapeHtml(s.clientName || '손님')}</span>
+                            ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 전화</a>` : ''}
+                          </div>
+                          ${s.memo ? `<div class="future-memo">📝 ${escapeHtml(s.memo)}</div>` : ''}
+                          <div class="future-actions">
+                            <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">💬 브리핑/피드백</button>
+                            <button class="btn-mini-act" onclick="deleteShowing('${s.id}')">삭제</button>
+                          </div>
+                        </div>
+                      `).join('')}
+                    ` : ''}
+
+                    ${pastShows.length > 0 ? `
+                      <div class="tree-section-title title-past">
+                        <span>📋 지난 브리핑 기록 (${pastShows.length})</span>
+                      </div>
+                      ${pastShows.map(s => `
+                        <div class="schedule-item-past">
+                          <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="past-date">${s.date} ${s.time}</span>
+                            <span class="past-client">${escapeHtml(s.clientName || '손님')}</span>
+                            <button class="btn-mini-act" style="font-size:11px; padding:1px 5px;" onclick="deleteShowing('${s.id}')">✕</button>
+                          </div>
+                          ${s.feedback ? `<div class="past-feedback">💬 ${escapeHtml(s.feedback)}</div>` : (s.memo ? `<div class="past-feedback" style="color:#64748b;">📝 ${escapeHtml(s.memo)}</div>` : '')}
+                        </div>
+                      `).join('')}
+                    ` : ''}
+                  </div>
+                </div>
+
+                <!-- Unit Actions (Edit info, Archive, Delete) -->
+                <div class="unit-actions-row">
+                  <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 호수 정보/비번 수정</button>
+                  ${p.isArchived ? `
+                    <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px;">♻️ 메인으로 살리기</button>
+                    <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
+                  ` : `
+                    <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📁 매물정리</button>
+                  `}
+                </div>
               </div>
-            </div>
-          </div>
+            `;
+          });
+
+          html += `
+              </div> <!-- .dong-units-list -->
+            </div> <!-- .dong-group-section -->
+          `;
+        });
+
+        html += `
+            </div> <!-- .complex-dongs-container -->
+          </div> <!-- .complex-card -->
         `;
       });
 
@@ -1239,20 +1430,57 @@
     }
 
     /* Modal Handlers */
-    function openNewPropertyModal() {
+    function openNewPropertyModal(presetDong, presetJibun, presetBDong, presetBuilding, presetCommonPw) {
       document.getElementById('editPropId').value = '';
-      document.getElementById('propModalTitle').textContent = '🏡 새 집(주소) 등록';
-      document.getElementById('propSubmitBtn').textContent = '새 주소 저장 완료';
+      document.getElementById('propModalTitle').textContent = '🏡 새 매물 등록';
+      document.getElementById('propSubmitBtn').textContent = '새 매물 저장 완료';
       document.getElementById('propModalShowingSection').style.display = 'block';
 
-      renderModalDongChips(settings.dongs[0]);
+      const initialDong = presetDong || settings.dongs[0] || '';
+      renderModalDongChips(initialDong);
       document.getElementById('propForm').reset();
+      document.getElementById('formDong').value = initialDong;
+      document.getElementById('formJibun').value = presetJibun || '';
+      document.getElementById('formBDong').value = (presetBDong && presetBDong !== '0') ? presetBDong : '';
+      document.getElementById('formBuilding').value = presetBuilding || '';
+      document.getElementById('formCommonPw').value = presetCommonPw || '';
       document.getElementById('formTenantName').value = '';
       document.getElementById('formTenantPhone').value = '';
       document.getElementById('formPropMemo').value = '';
-      document.getElementById('formDong').value = settings.dongs[0] || '';
       document.getElementById('formDate').value = getTodayString();
+      
+      // 만약 지번/동이 미리 채워져 있다면 공동비번 자동완성 시도
+      if (presetJibun && !presetCommonPw) {
+        onJibunOrDongChanged();
+      }
       openModal('propModal');
+    }
+
+    // 같은 지번 및 동 입력 시 기존 공동현관 비번 및 건물명 자동 완성
+    function onJibunOrDongChanged() {
+      const dong = document.getElementById('formDong').value.trim();
+      const jibun = document.getElementById('formJibun').value.trim();
+      let bDong = document.getElementById('formBDong').value.trim();
+      if (!bDong) bDong = '0';
+
+      if (!jibun) return;
+
+      const matched = properties.find(p => 
+        p.dong === dong && 
+        p.jibun === jibun && 
+        ((p.bDong || '0') === bDong)
+      );
+
+      if (matched) {
+        const commInput = document.getElementById('formCommonPw');
+        const bldgInput = document.getElementById('formBuilding');
+        if (!commInput.value && matched.commonPw) {
+          commInput.value = matched.commonPw;
+        }
+        if (!bldgInput.value && matched.building) {
+          bldgInput.value = matched.building;
+        }
+      }
     }
 
     function openEditPropertyModal(propId) {
@@ -1267,6 +1495,7 @@
       renderModalDongChips(p.dong || settings.dongs[0]);
       document.getElementById('formDong').value = p.dong || settings.dongs[0];
       document.getElementById('formJibun').value = p.jibun || '';
+      document.getElementById('formBDong').value = (p.bDong && p.bDong !== '0') ? p.bDong : '';
       document.getElementById('formHo').value = p.ho || '';
       document.getElementById('formBuilding').value = p.building || '';
       document.getElementById('formCommonPw').value = p.commonPw || '';
@@ -1314,6 +1543,8 @@
       const editId = document.getElementById('editPropId').value;
       const dong = document.getElementById('formDong').value.trim();
       const jibun = document.getElementById('formJibun').value.trim();
+      let bDong = document.getElementById('formBDong').value.trim();
+      if (!bDong) bDong = '0'; // 가상의 0동 (빌라 또는 동 없는 단일 건물)
       const ho = document.getElementById('formHo').value.trim();
       const building = document.getElementById('formBuilding').value.trim();
       const commonPw = document.getElementById('formCommonPw').value.trim();
@@ -1330,6 +1561,7 @@
         if (p) {
           p.dong = dong;
           p.jibun = jibun;
+          p.bDong = bDong;
           p.ho = ho;
           p.building = building;
           p.commonPw = commonPw;
@@ -1339,6 +1571,16 @@
           p.tenantName = tenantName;
           p.tenantPhone = tenantPhone;
           p.propMemo = propMemo;
+
+          // 만약 공동현관 비번이나 건물명을 수정했다면, 같은 지번+동의 다른 호수들에도 동기화 제안/적용
+          if (commonPw || building) {
+            properties.forEach(other => {
+              if (other.id !== p.id && other.dong === dong && other.jibun === jibun && (other.bDong || '0') === bDong) {
+                if (commonPw) other.commonPw = commonPw;
+                if (building) other.building = building;
+              }
+            });
+          }
           saveData();
           closeModal('propModal');
           renderApp();
@@ -1350,8 +1592,18 @@
       // 신규 물건지 등록
       const newProp = {
         id: 'prop-' + Date.now(),
-        dong, jibun, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo
+        dong, jibun, bDong, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo
       };
+      
+      // 같은 지번+동의 다른 호수들이 있으면 공동비번/건물명 자동 동기화
+      if (commonPw || building) {
+        properties.forEach(other => {
+          if (other.dong === dong && other.jibun === jibun && (other.bDong || '0') === bDong) {
+            if (commonPw && !other.commonPw) other.commonPw = commonPw;
+            if (building && !other.building) other.building = building;
+          }
+        });
+      }
       properties.unshift(newProp); // add to top
 
       // If showing schedule filled
