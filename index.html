@@ -1235,8 +1235,8 @@
               ${complexBuildingName ? `<div class="complex-building-title">🏢 ${escapeHtml(complexBuildingName)}</div>` : ''}
 
               <div class="complex-sub-bar">
-                <a href="${naverUrl}" target="_blank" class="btn-complex-act map">📍 단지/지번 지도열기</a>
-                <button type="button" class="btn-complex-act add-unit" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '', '${escapeHtml(complexBuildingName)}')">➕ 이 지번에 호수 추가</button>
+                <a href="${naverUrl}" target="_blank" class="btn-complex-act map">📍 지도열기</a>
+                <button type="button" class="btn-complex-act add-unit" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '', '${escapeHtml(complexBuildingName)}')">➕ 신규 동·호수 추가</button>
               </div>
             </div>
 
@@ -1254,13 +1254,16 @@
             <div class="dong-group-section">
               <!-- Dong Header (If apartment/multi-dong: show dong name; if villa: show clean common-pw line) -->
               <div class="dong-group-header">
-                <div>
+                <div style="display:flex; align-items:center; gap:6px;">
                   ${isRealDong ? `
                     <span class="dong-group-badge">🏢 ${escapeHtml(bDong)}</span>
-                    <span style="font-size:12px; color:#64748b; margin-left:6px;">(${propsInDong.length}개 호수)</span>
+                    <span style="font-size:12px; color:#64748b;">(${propsInDong.length}개 호수)</span>
                   ` : `
                     <span style="font-size:13px; font-weight:800; color:#334155;">🏠 건물 매물 (${propsInDong.length}개 호수)</span>
                   `}
+                  <button type="button" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '${isRealDong ? escapeHtml(bDong) : ''}', '${escapeHtml(complexBuildingName)}', '${dongCommonPw}')" style="background:#ffffff; border:1px solid #93c5fd; color:#2563eb; font-size:11px; font-weight:800; padding:2px 7px; border-radius:5px; cursor:pointer;">
+                    ➕ 호수 추가
+                  </button>
                 </div>
                 <div class="dong-common-pw-badge">
                   🔑 공동: <span>${dongCommonPw || '없음'}</span>
