@@ -459,6 +459,22 @@
           </div>
         </div>
 
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" style="color:#0284c7;">현재 세입자(거주자) 호칭</label>
+            <input type="text" id="formTenantName" class="form-input" placeholder="예: 세입자, 201호분">
+          </div>
+          <div class="form-group">
+            <label class="form-label" style="color:#0284c7;">세입자 연락처 (방문 전 통화용)</label>
+            <input type="tel" id="formTenantPhone" class="form-input" placeholder="010-0000-0000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">💡 물건지 특이사항 메모 (자유 기록)</label>
+          <textarea id="formPropMemo" class="form-textarea" rows="2" placeholder="예: 주차 1대 무료, 반려견 있음, 오후 2시 이후 방문 희망 등"></textarea>
+        </div>
+
         <!-- 3. 바로 잡힌 쇼잉 약속이 있다면 (신규 등록 시에만 표시) -->
         <div id="propModalShowingSection" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; margin-top: 10px;">
           <div style="font-size: 13px; font-weight: 800; color: #2563eb; margin-bottom: 8px;">
@@ -659,7 +675,10 @@
             doorPw: item.doorPw || '',
             commonPw: item.commonPw || '',
             ownerName: item.ownerName || '',
-            ownerPhone: item.ownerPhone || ''
+            ownerPhone: item.ownerPhone || '',
+            tenantName: item.tenantName || '',
+            tenantPhone: item.tenantPhone || '',
+            propMemo: item.propMemo || ''
           }));
         }
         const sh = localStorage.getItem(STORAGE_KEY_SHOWINGS);
@@ -949,7 +968,7 @@
           }
 
           if (searchWord) {
-            const matchAddr = `${p.dong} ${p.jibun} ${p.ho || ''} ${p.building || ''}`.toLowerCase();
+            const matchAddr = `${p.dong} ${p.jibun} ${p.ho || ''} ${p.building || ''} ${p.tenantName || ''} ${p.tenantPhone || ''} ${p.propMemo || ''}`.toLowerCase();
             if (matchAddr.includes(searchWord)) return true;
             const pShows = showings.filter(s => s.propertyId === p.id);
             const matchClient = pShows.some(s => (s.clientName || '').toLowerCase().includes(searchWord) || (s.clientPhone || '').includes(searchWord));
@@ -1049,14 +1068,28 @@
                 </div>
               </div>
 
-              <!-- 비번 & 임대인 연락처 (한눈에) -->
+              <!-- 비번 & 세입자/임대인 연락처 (한눈에) -->
               <div class="pw-line">
                 <div class="pw-text">🔑 공동: <span>${p.commonPw || '없음'}</span></div>
                 <div class="pw-text">🚪 세대: <span style="color:#1d4ed8;">${p.doorPw || '미등록'}</span></div>
-                ${p.ownerPhone ? `
-                  <a href="tel:${p.ownerPhone}" class="btn-owner-call">📞 ${p.ownerName || '임대인'} 통화</a>
-                ` : `<span style="font-size:12px; color:#94a3b8;">임대인 번호없음</span>`}
+                
+                <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                  ${p.tenantPhone ? `
+                    <a href="tel:${p.tenantPhone}" class="btn-tenant-call" style="background:#e0f2fe; border:1px solid #bae6fd; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#0369a1; text-decoration:none;">📞 세입자(${p.tenantName || '거주자'}) 통화</a>
+                  ` : ''}
+                  ${p.ownerPhone ? `
+                    <a href="tel:${p.ownerPhone}" class="btn-owner-call">📞 ${p.ownerName || '임대인'} 통화</a>
+                  ` : ''}
+                  ${!p.tenantPhone && !p.ownerPhone ? `<span style="font-size:12px; color:#94a3b8;">연락처 없음</span>` : ''}
+                </div>
               </div>
+
+              ${p.propMemo ? `
+                <div style="margin-top:8px; background:#fffbeb; border:1px solid #fef3c7; border-radius:6px; padding:7px 10px; font-size:12.5px; color:#92400e; display:flex; gap:6px; align-items:flex-start;">
+                  <span style="font-size:14px; line-height:1;">💡</span>
+                  <span style="flex:1; line-height:1.4;">${escapeHtml(p.propMemo)}</span>
+                </div>
+              ` : ''}
             </div>
 
             <!-- 2. 들여쓰기된 가지: 보러오는 손님 일정 (트리 연결선 포함) -->
@@ -1159,6 +1192,9 @@
 
       renderModalDongChips(settings.dongs[0]);
       document.getElementById('propForm').reset();
+      document.getElementById('formTenantName').value = '';
+      document.getElementById('formTenantPhone').value = '';
+      document.getElementById('formPropMemo').value = '';
       document.getElementById('formDong').value = settings.dongs[0] || '';
       document.getElementById('formDate').value = getTodayString();
       openModal('propModal');
@@ -1182,6 +1218,9 @@
       document.getElementById('formDoorPw').value = p.doorPw || '';
       document.getElementById('formOwnerName').value = p.ownerName || '';
       document.getElementById('formOwnerPhone').value = p.ownerPhone || '';
+      document.getElementById('formTenantName').value = p.tenantName || '';
+      document.getElementById('formTenantPhone').value = p.tenantPhone || '';
+      document.getElementById('formPropMemo').value = p.propMemo || '';
 
       openModal('propModal');
     }
@@ -1226,6 +1265,9 @@
       const doorPw = document.getElementById('formDoorPw').value.trim();
       const ownerName = document.getElementById('formOwnerName').value.trim();
       const ownerPhone = document.getElementById('formOwnerPhone').value.trim();
+      const tenantName = document.getElementById('formTenantName').value.trim();
+      const tenantPhone = document.getElementById('formTenantPhone').value.trim();
+      const propMemo = document.getElementById('formPropMemo').value.trim();
 
       if (editId) {
         // 기존 물건지 수정
@@ -1239,6 +1281,9 @@
           p.doorPw = doorPw;
           p.ownerName = ownerName;
           p.ownerPhone = ownerPhone;
+          p.tenantName = tenantName;
+          p.tenantPhone = tenantPhone;
+          p.propMemo = propMemo;
           saveData();
           closeModal('propModal');
           renderApp();
@@ -1250,7 +1295,7 @@
       // 신규 물건지 등록
       const newProp = {
         id: 'prop-' + Date.now(),
-        dong, jibun, ho, building, commonPw, doorPw, ownerName, ownerPhone
+        dong, jibun, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo
       };
       properties.unshift(newProp); // add to top
 
