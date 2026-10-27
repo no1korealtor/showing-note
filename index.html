@@ -97,22 +97,42 @@
       padding: 14px 16px; background: #ffffff; border-bottom: 2px solid #e2e8f0;
     }
     .star-bullet {
-      color: #f59e0b; font-size: 20px; line-height: 1; margin-right: 4px; display: inline-block; vertical-align: middle;
+      color: #f59e0b; font-size: 19px; line-height: 1; margin-right: 2px; display: inline-block; vertical-align: middle;
     }
     .addr-header {
-      display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+      display: flex; flex-direction: column; gap: 4px;
     }
     .addr-dong-badge {
       display: inline-block; background: #e0e7ff; color: #3730a3;
-      font-size: 13px; font-weight: 800; padding: 3px 8px; border-radius: 6px; margin-right: 4px; vertical-align: middle;
+      font-size: 13.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; margin-right: 3px; vertical-align: middle;
     }
     .addr-main {
-      font-size: 20px; font-weight: 900; color: #0f172a; line-height: 1.35; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;
+      font-size: 19px; font-weight: 900; color: #0f172a; line-height: 1.3; display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
     }
     .addr-ho {
-      color: #1d4ed8; background: #eff6ff; padding: 1px 7px; border-radius: 6px; font-size: 17px; border: 1px solid #bfdbfe; margin-left: 2px;
+      color: #1d4ed8; background: #eff6ff; padding: 1px 7px; border-radius: 6px; font-size: 17px; font-weight: 900; border: 1px solid #bfdbfe; margin-left: 2px;
     }
-    .addr-building { font-size: 14px; font-weight: 600; color: #64748b; margin-top: 3px; padding-left: 24px; }
+    .addr-building { 
+      font-size: 13.5px; font-weight: 600; color: #64748b; margin-top: 3px; padding-left: 4px; 
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Sub-bar below address for Map, Edit, etc. */
+    .addr-actions-bar {
+      display: flex; gap: 6px; align-items: center; margin-top: 8px;
+    }
+    .btn-card-action {
+      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
+      padding: 5px 11px; font-size: 12px; font-weight: 700; color: #334155; text-decoration: none;
+      white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      cursor: pointer; flex: 1; text-align: center;
+    }
+    .btn-card-action.map {
+      background: #f0fdf4; border-color: #bbf7d0; color: #15803d;
+    }
+    .btn-card-action:hover, .btn-card-action:active {
+      filter: brightness(0.96);
+    }
 
     .btn-map-link {
       background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 8px;
@@ -1087,19 +1107,19 @@
             <!-- 1. 주소 (최상단 - 별표 불릿 및 뚜렷한 구분) -->
             <div class="card-top">
               <div class="addr-header">
-                <div>
-                  <div class="addr-main">
-                    <span class="star-bullet">★</span>
-                    <span class="addr-dong-badge">${p.dong}</span>
-                    <span>${p.jibun}</span>
-                    ${p.ho ? `<span class="addr-ho">${p.ho}</span>` : ''}
-                    ${scheduleBadge}
-                  </div>
-                  ${p.building ? `<div class="addr-building">🏢 ${p.building}</div>` : ''}
+                <div class="addr-main">
+                  <span class="star-bullet">★</span>
+                  <span class="addr-dong-badge">${p.dong}</span>
+                  <span>${p.jibun}</span>
+                  ${p.ho ? `<span class="addr-ho">${p.ho}</span>` : ''}
+                  ${scheduleBadge}
                 </div>
-                <div style="display:flex; gap:6px; flex-shrink:0;">
-                  <button type="button" class="btn-map-link" style="background:#ffffff; color:#334155; border:1px solid #cbd5e1;" onclick="openEditPropertyModal('${p.id}')">✏️ 수정</button>
-                  <a href="${naverUrl}" target="_blank" class="btn-map-link">📍 지도열기</a>
+                ${p.building ? `<div class="addr-building">🏢 ${p.building}</div>` : ''}
+                
+                <!-- 가로 한 줄로 시원하게 배치된 수정 / 지도열기 바 -->
+                <div class="addr-actions-bar">
+                  <a href="${naverUrl}" target="_blank" class="btn-card-action map">📍 지도열기</a>
+                  <button type="button" class="btn-card-action" onclick="openEditPropertyModal('${p.id}')">✏️ 수정</button>
                 </div>
               </div>
 
