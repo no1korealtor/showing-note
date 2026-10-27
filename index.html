@@ -1395,6 +1395,13 @@
 
       p.isArchived = false;
       saveData();
+
+      // 만약 더 이상 보관된 매물이 없으면 기본 '전체 동' 필터로 자동 전환
+      const remainArchived = properties.filter(item => item.isArchived).length;
+      if (remainArchived === 0) {
+        currentDongFilter = 'ALL';
+      }
+
       renderApp();
       showToast('🎉 매물이 메인 목록으로 다시 복원되었습니다!');
     }
