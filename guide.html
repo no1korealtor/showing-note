@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>중개노트 - 공식 사용자 매뉴얼 & 업데이트 소식</title>
+  <style>
+    :root {
+      --primary: #1d4ed8;
+      --primary-light: #eff6ff;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --sub: #475569;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --accent: #2563eb;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Pretendard", sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); font-size: 15px; line-height: 1.6; padding-bottom: 60px; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 50; background: #ffffff;
+      border-bottom: 2px solid #e2e8f0; padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .header-brand {
+      display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 900; color: #1e293b;
+    }
+    .version-tag {
+      background: #2563eb; color: white; font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 12px;
+    }
+
+    .container {
+      max-width: 680px; margin: 0 auto; padding: 18px 16px;
+    }
+
+    /* Hero Banner */
+    .hero-box {
+      background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+      color: white; border-radius: 16px; padding: 22px 20px; margin-bottom: 22px;
+      box-shadow: 0 4px 16px rgba(29, 78, 216, 0.2);
+    }
+    .hero-title { font-size: 21px; font-weight: 900; margin-bottom: 6px; }
+    .hero-desc { font-size: 14px; opacity: 0.95; line-height: 1.5; }
+
+    /* Table of contents quick bar */
+    .toc-bar {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 20px;
+    }
+    .toc-pill {
+      background: white; border: 1.5px solid var(--border); border-radius: 20px;
+      padding: 6px 13px; font-size: 13px; font-weight: 700; color: #334155;
+      text-decoration: none; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* Section Card */
+    .guide-section {
+      background: var(--card); border-radius: 14px; border: 1.5px solid var(--border);
+      padding: 20px 18px; margin-bottom: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .section-title {
+      font-size: 17px; font-weight: 900; color: #1e293b; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;
+    }
+    .step-box {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 12px 14px; margin-bottom: 10px;
+    }
+    .step-title {
+      font-size: 14.5px; font-weight: 800; color: #1e40af; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .step-desc {
+      font-size: 13.5px; color: #475569; line-height: 1.55;
+    }
+    .tip-box {
+      background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+      padding: 10px 12px; font-size: 13px; color: #92400e; margin-top: 10px;
+      display: flex; gap: 6px; align-items: flex-start;
+    }
+
+    /* Release Notes Section */
+    .release-item {
+      padding-left: 14px; border-left: 3px solid #3b82f6; margin-bottom: 16px;
+    }
+    .release-ver {
+      font-size: 15px; font-weight: 900; color: #1d4ed8; display: flex; align-items: center; gap: 6px;
+    }
+    .release-date { font-size: 12px; font-weight: normal; color: #94a3b8; }
+    .release-list {
+      list-style-type: none; margin-top: 6px; font-size: 13.5px; color: #334155;
+    }
+    .release-list li {
+      position: relative; padding-left: 14px; margin-bottom: 4px;
+    }
+    .release-list li::before {
+      content: "•"; position: absolute; left: 0; color: #2563eb; font-weight: 900;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center; margin-top: 30px; font-size: 12.5px; color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-brand">
+      <span>🏡 중개노트</span>
+      <span class="version-tag">공식 매뉴얼</span>
+    </div>
+    <div style="font-size: 12.5px; font-weight: 700; color: #64748b;">
+      v1.0.3 최신판
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Hero Box -->
+    <div class="hero-box">
+      <div class="hero-title">공인중개사 현장 필수 수첩, 중개노트</div>
+      <div class="hero-desc">
+        현장에서 손님과 동행할 때 비밀번호를 1초 만에 확인하고, 거주자 직통 통화와 대단지 아파트 동·호수까지 완벽하게 관리하는 실전 활용 가이드입니다.
+      </div>
+    </div>
+
+    <!-- Quick Navigation Bar -->
+    <div class="toc-bar">
+      <a href="#sec-complex" class="toc-pill">🏢 아파트·빌라 묶음</a>
+      <a href="#sec-tenant" class="toc-pill">📞 세입자 직통/메모</a>
+      <a href="#sec-showing" class="toc-pill">🗓️ 쇼잉&피드백</a>
+      <a href="#sec-security" class="toc-pill">🔒 암호&금고복구</a>
+      <a href="#sec-release" class="toc-pill">🚀 업데이트 소식</a>
+    </div>
+
+    <!-- 1. 아파트 & 빌라 스마트 묶음 관리 -->
+    <div class="guide-section" id="sec-complex">
+      <div class="section-title">
+        <span>🏢 1. 스마트 지번·동·호수 묶음 관리 (v1.0.3 신기능)</span>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🔹 대단지 아파트 (같은 지번에 여러 동과 호수가 있을 때)</div>
+        <div class="step-desc">
+          성산시영아파트처럼 같은 지번에 101동, 102동 등 여러 동이 있다면, 매물 등록 시 <b>[건물 동]</b> 입력란에 <code>101동</code>을 입력하세요.<br>
+          동별로 헤더가 분리되며 <b>101동 공동현관 비밀번호</b>와 <b>102동 공동비번</b>이 서로 섞이지 않고 따로 완벽하게 보존됩니다.
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🔹 일반 빌라 / 다가구 / 단독 건물</div>
+        <div class="step-desc">
+          동 구분이 없는 일반 빌라는 <b>[건물 동]을 비워두시면</b> 프로그램이 알아서 가상의 기본동으로 처리합니다.<br>
+          한 건물에 나온 201호, 302호가 하나의 건물 카드 서랍 안에 쏙 모이고, <b>공동현관 비밀번호는 건물 전체에 1번만 입력하면 모든 호수가 자동 공유</b>합니다.
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">⚡️ [➕ 신규 동·호수 추가] 1초 등록 꿀팁</div>
+        <div class="step-desc">
+          이미 등록된 건물에 새로운 호수가 나왔다면 상단 <code>[➕ 새 매물 등록]</code>을 누르실 필요가 없습니다.<br>
+          해당 건물 카드의 <b>[➕ 신규 동·호수 추가]</b> 버튼을 누르면 <b>지번, 건물명, 공동비번이 자동으로 채워진 채로</b> 등록창이 열립니다. 새로 나온 호수와 세대 비번만 입력하면 3초 만에 끝납니다!
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 세입자 직통 통화 & 물건지 메모 -->
+    <div class="guide-section" id="sec-tenant">
+      <div class="section-title">
+        <span>📞 2. 세입자 직통 통화 및 물건지 특이사항 메모</span>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🔹 거주자 통화 직통 버튼 (하늘색)</div>
+        <div class="step-desc">
+          현재 세입자가 살고 있는 집을 보러 갈 때, 매물 카드에서 하늘색 <b>[📞 세입자 통화]</b> 버튼을 누르면 즉시 전화가 걸립니다. 임대인 번호와 명확하게 구분되어 현장에서 실수할 일이 없습니다.
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">💡 물건지 특이사항 메모란</div>
+        <div class="step-desc">
+          방문 가능 시간대, 주차 1대 무료 규정, 반려견 유무, 보증금 만기일 등 잊지 말아야 할 메모를 남겨두세요.<br>
+          매물 카드에 <b>노란색 강조 박스(💡)</b>로 선명하게 표시되어 현장 방문 직전 한눈에 브리핑 포인트를 잡을 수 있습니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 손님 쇼잉 약속 & 현장 브리핑 피드백 -->
+    <div class="guide-section" id="sec-showing">
+      <div class="section-title">
+        <span>🗓️ 3. 손님 쇼잉 약속 & 현장 피드백 기록</span>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🔹 일정 등록 & 방문 시간 알림</div>
+        <div class="step-desc">
+          호수 카드 안의 <b>[➕ 일정추가]</b>를 눌러 손님 이름과 연락처, 방문 시간을 기록합니다.<br>
+          오늘 잡힌 약속이 있다면 매물 카드 최상단에 <b>[⏰ 오늘 14:00 (손님명)]</b> 알림 뱃지가 눈에 띄게 붙습니다.
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">💬 현장 브리핑 피드백 누적</div>
+        <div class="step-desc">
+          손님 안내가 끝나면 <b>[💬 브리핑/피드백]</b> 버튼을 눌러 손님의 실시간 반응(예: <i>채광 마음에 듦, 대출 한도 조회 후 재연락</i> 등)을 메모해 두세요. 시간이 지나도 손님과의 히스토리가 철저히 관리됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 보안 암호 & 자동 금고 영구 복구 -->
+    <div class="guide-section" id="sec-security">
+      <div class="section-title">
+        <span>🔒 4. 보안 암호(PIN) 설정 & 자동 금고 복구</span>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🔹 초기 암호(0000) 변경 & 현장 잠금</div>
+        <div class="step-desc">
+          설치 초기 비밀번호는 <code>0000</code>입니다. 상단 배너의 <b>[변경하기 →]</b>나 <b>[⚙️ 설정]</b>에서 나만의 4자리 암호로 변경하세요.<br>
+          손님 앞에서 자리를 비우거나 앱을 잠글 때는 상단 <b>[🔒 잠금]</b>을 누르면 즉시 보안 키패드 화면으로 전환됩니다.
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">🛡️ 앱을 지워도 100% 살아나는 자동 암호화 금고</div>
+        <div class="step-desc">
+          중개노트는 스마트폰 공용 문서 폴더(<code>내 파일 > Documents</code>)에 <b>AES-256 군사급 암호화 금고(showing_note_vault.enc)</b>로 실시간 자동 백업됩니다.<br>
+          스마트폰을 바꾸거나 앱을 삭제 후 재설치해도, <b>원래 쓰던 4자리 암호만 입력하면 모든 데이터가 기적처럼 100% 자동 복구</b>됩니다.
+        </div>
+      </div>
+
+      <div class="step-box">
+        <div class="step-title">📦 계약 완료 매물 숨기기 / 보관</div>
+        <div class="step-desc">
+          계약이 완료된 매물은 삭제하지 마시고 <b>[📁 매물정리] ➔ [📦 숨기기 / 계약완료 보관]</b>을 누르세요.<br>
+          메인 화면에서는 사라져 깔끔해지고, 소중한 비밀번호와 임대인 연락처는 <b>[📦 보관·숨김] 필터</b>에 안전하게 보존되어 언제든 클릭 한 번으로 다시 살릴 수 있습니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 버전별 업데이트 기록 -->
+    <div class="guide-section" id="sec-release">
+      <div class="section-title">
+        <span>🚀 5. 버전별 업데이트 소식 (Release Notes)</span>
+      </div>
+
+      <div class="release-item">
+        <div class="release-ver">
+          <span>v1.0.3 (최신 버전)</span>
+          <span class="release-date">2026.10</span>
+        </div>
+        <ul class="release-list">
+          <li><b>아파트 & 빌라 스마트 계층형 서랍 관리:</b> 같은 지번에 여러 동과 호수가 있어도 카드 1장으로 묶음 관리</li>
+          <li><b>가상의 0동 지원:</b> 빌라는 심플하게 호수만, 아파트는 동별 공동비번 완벽 분리</li>
+          <li><b>[➕ 신규 동·호수 추가]:</b> 이미 등록된 건물에서 1초 만에 다음 호수 등록 기능</li>
+          <li><b>주소 가로 전폭 배치:</b> 동/지번/호수가 줄바꿈 없이 한 줄에 시원하게 표시</li>
+          <li><b>상시 플로팅 [📖 사용설명서] 버튼:</b> 언제든 궁금할 때 1초 만에 매뉴얼 확인 가능</li>
+        </ul>
+      </div>
+
+      <div class="release-item">
+        <div class="release-ver">
+          <span>v1.0.2</span>
+          <span class="release-date">2026.10</span>
+        </div>
+        <ul class="release-list">
+          <li><b>세입자(거주자) 직통 통화 버튼(하늘색)</b> 추가</li>
+          <li><b>물건지 특이사항 메모란(💡)</b> 지원</li>
+          <li>상단 스마트폰 상태바(시계/와이파이) 겹침 방지 여백 최적화</li>
+          <li>매물 카드 하단 <code>[📍 지도열기]</code> | <code>[✏️ 수정]</code> 1:1 대칭 바 정돈</li>
+        </ul>
+      </div>
+
+      <div class="release-item">
+        <div class="release-ver">
+          <span>v1.0.1</span>
+          <span class="release-date">2026.10</span>
+        </div>
+        <ul class="release-list">
+          <li><b>원스토어(ONE store)</b> 정식 출시</li>
+          <li><b>AES-256 자동 암호화 금고:</b> 앱 삭제 시에도 4자리 암호만 치면 100% 영구 복원</li>
+          <li><b>매물 자산 보호(보관/숨기기):</b> 계약완료 매물 안전 보관함 및 1초 복원 기능</li>
+          <li><b>실시간 무검증 OTA 자동 업데이트:</b> 앱 재설치 없이도 최신 기능 실시간 반영</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 중개노트 (Showing Note) - 공인중개사를 위한 현장 파트너</p>
+      <p style="margin-top: 4px;">공식 홈페이지: <a href="https://www.xn--h49ay03b72eh1d.kr/" target="_blank" style="color: #2563eb; text-decoration: none;">중개수첩.kr</a></p>
+    </footer>
+  </div>
+
+</body>
+</html>
