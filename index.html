@@ -716,6 +716,23 @@
         <span>⚙️ 환경 설정</span>
         <span style="cursor: pointer; color: #64748b;" onclick="closeModal('settingsModal')">✕</span>
       </div>
+
+      <!-- 내 활동 동 목록 관리 -->
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">📍 내 활동 동 목록 (상단 필터 칩)</label>
+        <div class="chips" id="settingsDongChips"></div>
+        <div style="display:flex; gap:6px; margin-top:8px;">
+          <input type="text" id="newDongText" class="form-input" placeholder="새로운 동 이름 (예: 연남동)">
+          <button type="button" class="btn-top primary" onclick="addDong()">추가</button>
+        </div>
+      </div>
+
+      <!-- 지도 검색용 기준 시/구 -->
+      <div style="margin-bottom: 16px;">
+        <label class="form-label">기본 시/구 (네이버 지도 검색용)</label>
+        <input type="text" id="baseDistrict" class="form-input" onchange="settings.baseDistrict=this.value; saveData();">
+      </div>
+
       <div style="margin-bottom: 16px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
         <label class="form-label" style="margin-bottom: 8px;">🔒 보안 암호(PIN) 4자리 변경</label>
         <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -1818,12 +1835,14 @@
     /* Settings */
     function openSettingsModal() {
       renderSettingsDongs();
-      document.getElementById('baseDistrict').value = settings.baseDistrict || '서울특별시 마포구';
+      const dist = document.getElementById('baseDistrict');
+      if (dist) dist.value = settings.baseDistrict || '서울특별시 마포구';
       openModal('settingsModal');
     }
 
     function renderSettingsDongs() {
       const c = document.getElementById('settingsDongChips');
+      if (!c) return;
       c.innerHTML = settings.dongs.map(d => `
         <span class="chip" style="display:inline-flex; align-items:center; gap:5px;">
           ${d} <span onclick="removeDong('${d}')" style="color:red; cursor:pointer;">✕</span>
