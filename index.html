@@ -1377,7 +1377,7 @@
                     ${unitScheduleBadge}
                   </div>
                   <div class="unit-door-pw">
-                    세대 도어락: <span>${p.doorPw || '미등록'}</span>
+                    ${p.ho ? '세대 도어락' : '🔑 현관 도어락'}: <span>${p.doorPw || p.commonPw || '미등록'}</span>
                   </div>
                 </div>
 
