@@ -364,8 +364,14 @@
       padding: 7px 10px; font-size: 12.5px; color: #92400e; display: flex; gap: 6px; align-items: flex-start;
     }
     .unit-actions-row {
-      display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; padding-top: 6px; border-top: 1px dashed #f1f5f9;
+      display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px dashed #e2e8f0;
     }
+    .btn-unit-add-showing {
+      background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1d4ed8;
+      font-size: 12px; font-weight: 800; border-radius: 6px; padding: 4px 10px;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .btn-unit-add-showing:active { background: #dbeafe; }
 
   
     /* Floating Manual Button (Always visible) */
@@ -1387,70 +1393,72 @@
                   </div>
                 ` : ''}
 
-                <!-- Indented Showing Tree for this Unit -->
-                <div class="showing-tree" style="margin-top:10px; border-radius:8px; background:#f8fafc; padding:10px 12px;">
-                  <div class="tree-header-row">
-                    <span class="tree-header-label">
-                      <span>🤝 쇼잉 약속 & 현장 브리핑</span>
-                      <span style="font-size:11px; background:#e0e7ff; color:#3730a3; padding:1px 6px; border-radius:10px;">${pShows.length}건</span>
-                    </span>
-                    <button type="button" class="btn-add-schedule" onclick="openAddShowingModal('${p.id}')">➕ 일정추가</button>
-                  </div>
+                <!-- Indented Showing Tree for this Unit (일정이 있을 때만 표시!) -->
+                ${pShows.length > 0 ? `
+                  <div class="showing-tree" style="margin-top:10px; border-radius:8px; background:#f8fafc; padding:10px 12px;">
+                    <div class="tree-header-row">
+                      <span class="tree-header-label">
+                        <span>🤝 쇼잉 약속 & 현장 브리핑</span>
+                        <span style="font-size:11px; background:#e0e7ff; color:#3730a3; padding:1px 6px; border-radius:10px;">${pShows.length}건</span>
+                      </span>
+                    </div>
 
-                  <div class="tree-branch-container">
-                    ${upcomingShows.length === 0 && pastShows.length === 0 ? `
-                      <div style="font-size:12px; color:#94a3b8; padding: 4px 0;">
-                        아직 등록된 쇼잉 일정이 없습니다. [➕ 일정추가]로 손님 약속을 기록하세요.
-                      </div>
-                    ` : ''}
-
-                    ${upcomingShows.length > 0 ? `
-                      <div class="tree-section-title title-upcoming">
-                        <span>🗓️ 예정된 쇼잉 (${upcomingShows.length})</span>
-                      </div>
-                      ${upcomingShows.map(s => `
-                        <div class="schedule-item-future">
-                          <div class="future-head">
-                            <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
-                            <span class="future-client">${escapeHtml(s.clientName || '손님')}</span>
-                            ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 전화</a>` : ''}
-                          </div>
-                          ${s.memo ? `<div class="future-memo">📝 ${escapeHtml(s.memo)}</div>` : ''}
-                          <div class="future-actions">
-                            <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">💬 브리핑/피드백</button>
-                            <button class="btn-mini-act" onclick="deleteShowing('${s.id}')">삭제</button>
-                          </div>
+                    <div class="tree-branch-container">
+                      ${upcomingShows.length > 0 ? `
+                        <div class="tree-section-title title-upcoming">
+                          <span>🗓️ 예정된 쇼잉 (${upcomingShows.length})</span>
                         </div>
-                      `).join('')}
-                    ` : ''}
-
-                    ${pastShows.length > 0 ? `
-                      <div class="tree-section-title title-past">
-                        <span>📋 지난 브리핑 기록 (${pastShows.length})</span>
-                      </div>
-                      ${pastShows.map(s => `
-                        <div class="schedule-item-past">
-                          <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="past-date">${s.date} ${s.time}</span>
-                            <span class="past-client">${escapeHtml(s.clientName || '손님')}</span>
-                            <button class="btn-mini-act" style="font-size:11px; padding:1px 5px;" onclick="deleteShowing('${s.id}')">✕</button>
+                        ${upcomingShows.map(s => `
+                          <div class="schedule-item-future">
+                            <div class="future-head">
+                              <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
+                              <span class="future-client">${escapeHtml(s.clientName || '손님')}</span>
+                              ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 전화</a>` : ''}
+                            </div>
+                            ${s.memo ? `<div class="future-memo">📝 ${escapeHtml(s.memo)}</div>` : ''}
+                            <div class="future-actions">
+                              <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">💬 브리핑/피드백</button>
+                              <button class="btn-mini-act" onclick="deleteShowing('${s.id}')">삭제</button>
+                            </div>
                           </div>
-                          ${s.feedback ? `<div class="past-feedback">💬 ${escapeHtml(s.feedback)}</div>` : (s.memo ? `<div class="past-feedback" style="color:#64748b;">📝 ${escapeHtml(s.memo)}</div>` : '')}
-                        </div>
-                      `).join('')}
-                    ` : ''}
-                  </div>
-                </div>
+                        `).join('')}
+                      ` : ''}
 
-                <!-- Unit Actions (Edit info, Archive, Delete) -->
+                      ${pastShows.length > 0 ? `
+                        <div class="tree-section-title title-past">
+                          <span>📋 지난 브리핑 기록 (${pastShows.length})</span>
+                        </div>
+                        ${pastShows.map(s => `
+                          <div class="schedule-item-past">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                              <span class="past-date">${s.date} ${s.time}</span>
+                              <span class="past-client">${escapeHtml(s.clientName || '손님')}</span>
+                              <button class="btn-mini-act" style="font-size:11px; padding:1px 5px;" onclick="deleteShowing('${s.id}')">✕</button>
+                            </div>
+                            ${s.feedback ? `<div class="past-feedback">💬 ${escapeHtml(s.feedback)}</div>` : (s.memo ? `<div class="past-feedback" style="color:#64748b;">📝 ${escapeHtml(s.memo)}</div>` : '')}
+                          </div>
+                        `).join('')}
+                      ` : ''}
+                    </div>
+                  </div>
+                ` : ''}
+
+                <!-- Unit Actions Row: [➕ 일정추가] 버튼과 수정/정리 버튼을 한 줄에 깔끔하게 배치! -->
                 <div class="unit-actions-row">
-                  <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 호수 정보/비번 수정</button>
-                  ${p.isArchived ? `
-                    <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px;">♻️ 메인으로 살리기</button>
-                    <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
-                  ` : `
-                    <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📁 매물정리</button>
-                  `}
+                  <div>
+                    <button type="button" class="btn-unit-add-showing" onclick="openAddShowingModal('${p.id}')">
+                      ➕ 일정 추가
+                    </button>
+                  </div>
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 호수 정보/비번 수정</button>
+                    ${p.isArchived ? `
+                      <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px;">♻️ 메인으로 살리기</button>
+                      <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
+                    ` : `
+                      <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📁 매물정리</button>
+                    `}
+                  </div>
                 </div>
               </div>
             `;
