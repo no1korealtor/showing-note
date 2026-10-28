@@ -591,8 +591,8 @@
             <input type="text" id="formBDong" class="form-input" placeholder="예: 101동, 가동 (빌라는 비워두기)" oninput="onJibunOrDongChanged()">
           </div>
           <div class="form-group">
-            <label class="form-label">호수 / 층수 <span style="color:red">*</span></label>
-            <input type="text" id="formHo" class="form-input" placeholder="예: 302호" required>
+            <label class="form-label">호수 / 층수 (선택)</label>
+            <input type="text" id="formHo" class="form-input" placeholder="예: 302호, 2층, 전체 (호수 없으면 비워두기)">
           </div>
         </div>
 
@@ -1330,9 +1330,9 @@
                 <div style="display:flex; align-items:center; gap:6px;">
                   ${isRealDong ? `
                     <span class="dong-group-badge">🏢 ${escapeHtml(bDong)}</span>
-                    <span style="font-size:12px; color:#64748b;">(${propsInDong.length}개 호수)</span>
+                    <span style="font-size:12px; color:#64748b;">(${propsInDong.length}건)</span>
                   ` : `
-                    <span style="font-size:13px; font-weight:800; color:#334155;">🏠 건물 매물 (${propsInDong.length}개 호수)</span>
+                    <span style="font-size:13px; font-weight:800; color:#334155;">🏠 건물 매물 (${propsInDong.length}건)</span>
                   `}
                   <button type="button" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '${isRealDong ? escapeHtml(bDong) : ''}', '${escapeHtml(complexBuildingName)}', '${dongCommonPw}')" style="background:#ffffff; border:1px solid #93c5fd; color:#2563eb; font-size:11px; font-weight:800; padding:2px 7px; border-radius:5px; cursor:pointer;">
                     ➕ 호수 추가
@@ -1372,7 +1372,7 @@
                 <!-- Unit Header Row (Ho, Door PW, Schedule badge) -->
                 <div class="unit-header-row">
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="unit-ho-tag">🚪 ${p.ho || '호수 미등록'}</span>
+                    <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#f1f5f9; color:#475569; border-color:#cbd5e1;'}">🚪 ${p.ho ? p.ho : '단독/건물전체 (호수없음)'}</span>
                     ${unitScheduleBadge}
                   </div>
                   <div class="unit-door-pw">
