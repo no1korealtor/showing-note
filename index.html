@@ -340,7 +340,9 @@
       border-top: 4px solid #1e40af;
     }
     .complex-header {
-      padding: 14px 16px; background: #ffffff; border-bottom: 2px solid #e2e8f0;
+      padding: 14px 16px; 
+      background: #f1f5f9; /* 프리미엄 소프트 슬레이트 그레이 명판 */
+      border-bottom: 2px solid #cbd5e1; /* 확실한 경계 구분선 */
     }
     .complex-addr-title {
       font-size: 19px; font-weight: 900; color: #0f172a; line-height: 1.35; display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
@@ -352,16 +354,17 @@
       display: flex; gap: 6px; align-items: center; margin-top: 10px;
     }
     .btn-complex-act {
-      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
+      background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px;
       padding: 6px 12px; font-size: 12.5px; font-weight: 700; color: #334155; text-decoration: none;
       display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer;
-      flex: 1; text-align: center;
+      flex: 1; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
     .btn-complex-act.map {
-      background: #f0fdf4; border-color: #bbf7d0; color: #15803d;
+      background: #ffffff; border-color: #86efac; color: #15803d; font-weight: 800;
     }
     .btn-complex-act.add-unit {
-      background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; font-weight: 800;
+      background: #2563eb; border-color: #1d4ed8; color: #ffffff; font-weight: 800;
+      box-shadow: 0 2px 5px rgba(37,99,235,0.2);
     }
 
     /* Building Dong Section inside Complex */
@@ -372,8 +375,8 @@
       border-bottom: none;
     }
     .dong-group-header {
-      background: #f1f5f9; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid #e2e8f0; font-size: 13.5px; font-weight: 800; color: #1e293b;
+      background: #f8fafc; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #e2e8f0; font-size: 13px; font-weight: 800; color: #1e293b;
     }
     .dong-group-badge {
       display: inline-flex; align-items: center; gap: 4px; background: #1e293b; color: white;
