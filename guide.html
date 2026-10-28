@@ -104,6 +104,82 @@
     footer {
       text-align: center; margin-top: 30px; font-size: 12.5px; color: #94a3b8;
     }
+  
+    /* OneStore Download Banner */
+    .onestore-banner {
+      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+      border: 2px solid #fda4af;
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.08);
+    }
+    .onestore-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .onestore-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #e11d48;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
+    }
+    .onestore-text-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: #9f1239;
+      margin-bottom: 2px;
+    }
+    .onestore-text-desc {
+      font-size: 12.5px;
+      color: #be123c;
+    }
+    .btn-onestore-download {
+      background: #e11d48;
+      color: white;
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 800;
+      padding: 10px 16px;
+      border-radius: 10px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(225, 29, 72, 0.3);
+      transition: transform 0.1s, background 0.1s;
+    }
+    .btn-onestore-download:active {
+      transform: scale(0.96);
+      background: #be123c;
+    }
+    @media (max-width: 460px) {
+      .onestore-banner {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+      .onestore-info {
+        flex-direction: column;
+        justify-content: center;
+      }
+      .btn-onestore-download {
+        justify-content: center;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -126,6 +202,21 @@
       <div class="hero-desc">
         현장에서 손님과 동행할 때 비밀번호를 1초 만에 확인하고, 거주자 직통 통화와 대단지 아파트 동·호수까지 완벽하게 관리하는 실전 활용 가이드입니다.
       </div>
+    </div>
+
+        <!-- ONE Store Official Download Banner -->
+    <div class="onestore-banner">
+      <div class="onestore-info">
+        <div class="onestore-icon">📲</div>
+        <div>
+          <div class="onestore-text-title">원스토어(ONE store) 공식 앱 출시!</div>
+          <div class="onestore-text-desc">스마트폰에 중개노트 정식 앱을 무료로 다운로드 받으세요.</div>
+        </div>
+      </div>
+      <a href="onestore://common/product/0000788888" onclick="handleOneStoreDownload(event)" class="btn-onestore-download">
+        <span>🛒 원스토어 다운로드</span>
+        <span>→</span>
+      </a>
     </div>
 
     <!-- Quick Navigation Bar -->
@@ -297,5 +388,25 @@
     </footer>
   </div>
 
+
+  <script>
+    function handleOneStoreDownload(e) {
+      // 1. 모바일 원스토어 앱 스킴 시도
+      const onestoreAppUrl = 'onestore://common/product/search?query=' + encodeURIComponent('중개노트');
+      const onestoreWebUrl = 'https://m.onestore.co.kr/mobilepoc/apps/appsDetail.omp?prodId=0000788888';
+      const webSearchUrl = 'https://m.onestore.co.kr/mobilepoc/search/search.omp?searchType=total&searchTerm=' + encodeURIComponent('중개노트');
+
+      // Android 기기인지 확인
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      if (isAndroid) {
+        // 원스토어 앱 실행 시도, 없으면 원스토어 모바일 웹 검색으로 이동
+        location.href = webSearchUrl;
+      } else {
+        // PC 또는 기타 환경: 원스토어 모바일 웹 검색
+        window.open(webSearchUrl, '_blank');
+      }
+    }
+  </script>
 </body>
+
 </html>
