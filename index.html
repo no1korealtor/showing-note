@@ -103,71 +103,17 @@
       background: #1d4ed8; color: white; border-color: #1d4ed8;
     }
 
-    /* ADDRESS CARD (Main Focus) */
-    .prop-card {
-      background: var(--card); border-radius: 14px; border: 1.5px solid #cbd5e1;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.06); margin-bottom: 20px; overflow: hidden;
-      border-top: 4px solid #1e40af; /* 물건지 최상단 블루 포인트 라인 */
-    }
-
-    /* Card Top: Address */
-    .card-top {
-      padding: 14px 16px; background: #ffffff; border-bottom: 2px solid #e2e8f0;
-    }
+    /* Address Common Badges */
     .star-bullet {
       color: #f59e0b; font-size: 19px; line-height: 1; margin-right: 2px; display: inline-block; vertical-align: middle;
-    }
-    .addr-header {
-      display: flex; flex-direction: column; gap: 4px;
     }
     .addr-dong-badge {
       display: inline-block; background: #e0e7ff; color: #3730a3;
       font-size: 13.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; margin-right: 3px; vertical-align: middle;
     }
-    .addr-main {
-      font-size: 19px; font-weight: 900; color: #0f172a; line-height: 1.3; display: flex; align-items: center; flex-wrap: wrap; gap: 5px;
-    }
-    .addr-ho {
-      color: #1d4ed8; background: #eff6ff; padding: 1px 7px; border-radius: 6px; font-size: 17px; font-weight: 900; border: 1px solid #bfdbfe; margin-left: 2px;
-    }
-    .addr-building { 
-      font-size: 13.5px; font-weight: 600; color: #64748b; margin-top: 3px; padding-left: 4px; 
-      display: flex; align-items: center; gap: 4px;
-    }
-
-    /* Sub-bar below address for Map, Edit, etc. */
-    .addr-actions-bar {
-      display: flex; gap: 6px; align-items: center; margin-top: 8px;
-    }
-    .btn-card-action {
-      background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px;
-      padding: 5px 11px; font-size: 12px; font-weight: 700; color: #334155; text-decoration: none;
-      white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-      cursor: pointer; flex: 1; text-align: center;
-    }
-    .btn-card-action.map {
-      background: #f0fdf4; border-color: #bbf7d0; color: #15803d;
-    }
-    .btn-card-action:hover, .btn-card-action:active {
-      filter: brightness(0.96);
-    }
-
-    .btn-map-link {
-      background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 8px;
-      padding: 6px 10px; font-size: 12px; font-weight: 800; color: #0284c7; text-decoration: none;
-      white-space: nowrap; display: inline-flex; align-items: center; gap: 3px;
-    }
-
-    /* Passwords & Owner Line */
-    .pw-line {
-      margin-top: 10px; background: #f8fafc; border: 1.5px dashed #94a3b8; border-radius: 8px;
-      padding: 9px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
-    }
-    .pw-text { font-size: 14px; font-weight: 700; color: #1e293b; }
-    .pw-text span { font-size: 16px; font-weight: 900; color: #2563eb; font-family: monospace; }
     .btn-owner-call {
       background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px;
-      padding: 5px 11px; font-size: 12px; font-weight: 800; color: #92400e; text-decoration: none;
+      padding: 5px 10px; font-size: 12px; font-weight: 800; color: #92400e; text-decoration: none;
     }
 
     /* INDENTED SECTION: SHOWING HISTORY & UPCOMING (Tree structure) */
@@ -1897,14 +1843,7 @@
       openOrganizeModal(id);
     }
 
-    function _old_deleteProperty(id) {
-      if (!confirm('이 매물과 관련된 모든 쇼잉 기록을 삭제하시겠습니까?')) return;
-      properties = properties.filter(p => p.id !== id);
-      showings = showings.filter(s => s.propertyId !== id);
-      saveData();
-      renderApp();
-      showToast('매물이 삭제되었습니다');
-    }
+
 
     /* Settings */
     function openSettingsModal() {
