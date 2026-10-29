@@ -810,6 +810,50 @@
     </div>
   </div>
 
+  <!-- Modal: 무료 플랜 한도(100개) 도달 안내 모달 -->
+  <div class="modal-overlay" id="limitModal">
+    <div class="modal-sheet" style="text-align: center; max-height: 85vh; overflow-y: auto;">
+      <div style="font-size: 42px; margin-bottom: 6px;">👑</div>
+      <div class="modal-title" style="justify-content: center; border: none; margin-bottom: 4px; font-size: 17px; color: #1e293b;">
+        무료 플랜 보관 한도(100개)에 도달했습니다
+      </div>
+      <p style="font-size: 13px; color: #475569; margin-bottom: 14px; line-height: 1.55;">
+        중개노트 개인 무료 에디션은 <b>최대 100개의 매물</b>까지 안전하게 보관하실 수 있습니다.<br>
+        이미 등록된 매물은 <b style="color:#1d4ed8;">평생 무료로 조회 및 수정</b>이 가능합니다!
+      </p>
+
+      <!-- Tip Box: Archive Completed Deals -->
+      <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px 14px; text-align: left; margin-bottom: 14px;">
+        <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 5px;">
+          💡 여유 공간 확보 꿀팁 (계약완료 보관)
+        </div>
+        <div style="font-size: 12px; color: #475569; line-height: 1.5;">
+          이미 계약이 완료된 매물은 <b>[📁 매물정리 ➔ 📦 숨기기 / 계약완료 보관]</b>을 누르시면, 소중한 도어락 비밀번호는 보존되면서 활성 보관 공간이 확보됩니다.
+        </div>
+      </div>
+
+      <!-- Preview Pro Plan Banner -->
+      <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1.5px solid #93c5fd; border-radius: 10px; padding: 12px 14px; text-align: left; margin-bottom: 16px;">
+        <div style="font-size: 13px; font-weight: 800; color: #1e40af; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+          <span>🏢 무제한 프로 비즈니스 플랜</span>
+          <span style="background: #2563eb; color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 8px;">출시 예정</span>
+        </div>
+        <div style="font-size: 12px; color: #334155; line-height: 1.45;">
+          • <b>무제한 매물 보관</b><br>
+          • <b>실시간 사무소 팀 공유 & 퇴사자 원격 보안 회수</b><br>
+          • <b>사업자 인증 기반 마스터 라이선스</b>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn-top" style="flex: 1; padding: 11px; font-weight: 700;" onclick="closeModal('limitModal')">확인</button>
+        <button type="button" class="btn-top primary" style="flex: 1.2; padding: 11px; font-weight: 800;" onclick="closeModal('limitModal'); openTeamPreviewModal();">
+          사무소 플랜 알아보기 →
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: 사무소 팀 공유 & 퇴사자 보안 솔루션 안내 (Coming Soon) -->
   <div class="modal-overlay" id="teamPreviewModal">
     <div class="modal-sheet" style="max-height: 88vh; overflow-y: auto;">
@@ -906,6 +950,7 @@
     const STORAGE_KEY_PROPERTIES = 'showing_diary_properties';
     const STORAGE_KEY_SHOWINGS = 'showing_diary_showings';
     const STORAGE_KEY_SNAPSHOTS = 'showing_diary_snapshots';
+    const MAX_FREE_PROPERTIES = 100; // 개인 무료 플랜 최대 보관 매물 한도
 
     let settings = { pin: '0000', dongs: ['성산동', '중동'], baseDistrict: '서울특별시 마포구' };
     let properties = [];
@@ -1292,7 +1337,17 @@
       // Sort Bar UI Update
       document.getElementById('sortScheduleBtn').classList.toggle('active', currentSortBy === 'schedule');
       document.getElementById('sortAddrBtn').classList.toggle('active', currentSortBy === 'address');
-      document.getElementById('propCount').textContent = `총 ${list.length}개 호수`;
+      // Active properties count (excluding archived ones)
+      const activeCount = properties.filter(p => !p.isArchived).length;
+      const countEl = document.getElementById('propCount');
+      if (currentFilterStatus === 'ARCHIVED') {
+        countEl.innerHTML = `📦 보관된 매물: <b style="color:#64748b;">${list.length}개</b>`;
+      } else {
+        let countColor = '#2563eb';
+        if (activeCount >= MAX_FREE_PROPERTIES) countColor = '#dc2626';
+        else if (activeCount >= 80) countColor = '#d97706';
+        countEl.innerHTML = `📦 보관함: <b style="color:${countColor};">${activeCount}</b> / ${MAX_FREE_PROPERTIES}개 <span style="font-size:11px; color:#64748b; font-weight:normal;">(무료 플랜)</span>`;
+      }
 
       // GROUPING LOGIC: Group by (dong + '___' + jibun)
       const complexMap = new Map();
@@ -1594,6 +1649,13 @@
 
     /* Modal Handlers */
     function openNewPropertyModal(presetDong, presetJibun, presetBDong, presetBuilding, presetCommonPw) {
+      // 신규 등록 시 무료 플랜 100개 한도 검사
+      const activeCount = properties.filter(p => !p.isArchived).length;
+      if (activeCount >= MAX_FREE_PROPERTIES) {
+        openModal('limitModal');
+        return;
+      }
+
       document.getElementById('editPropId').value = '';
       document.getElementById('propModalTitle').textContent = '🏡 새 매물 등록';
       document.getElementById('propSubmitBtn').textContent = '새 매물 저장 완료';
@@ -1707,6 +1769,14 @@
     function savePropertyAndShowing(e) {
       e.preventDefault();
       const editId = document.getElementById('editPropId').value;
+      if (!editId) {
+        const activeCount = properties.filter(p => !p.isArchived).length;
+        if (activeCount >= MAX_FREE_PROPERTIES) {
+          closeModal('propModal');
+          openModal('limitModal');
+          return;
+        }
+      }
       const dong = document.getElementById('formDong').value.trim();
       const jibun = document.getElementById('formJibun').value.trim();
       let bDong = document.getElementById('formBDong').value.trim();
