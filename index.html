@@ -572,18 +572,23 @@
           </div>
           <div class="form-group">
             <label class="form-label">호수 / 층수 (선택)</label>
-            <input type="text" id="formHo" class="form-input" placeholder="예: 302호, 2층, 전체 (호수 없으면 비워두기)">
+            <input type="text" id="formHo" class="form-input" placeholder="예: 302호, 2층 (건물전체는 비워두기)" oninput="updatePasswordFieldsVisibility()">
           </div>
         </div>
 
         <!-- 2. 비밀번호 & 임대인 -->
-        <div class="form-row-2">
-          <div class="form-group">
-            <label class="form-label">공동현관 비번 <span style="font-size:11px; color:#2563eb; font-weight:normal;">(같은 동/빌라는 자동공유)</span></label>
+        <div id="commonPwNoticeBar" style="display:none; background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:8px 12px; margin-bottom:10px; font-size:12.5px; color:#1e40af; justify-content:space-between; align-items:center;">
+          <span>🔑 이 건물(동) 공동현관 비번: <b id="commonPwNoticeVal">없음</b></span>
+          <button type="button" onclick="toggleForceShowCommonPw()" style="background:#ffffff; border:1px solid #93c5fd; color:#2563eb; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; cursor:pointer;">공동비번 변경</button>
+        </div>
+
+        <div class="form-row-2" id="pwRowContainer">
+          <div class="form-group" id="commonPwGroup">
+            <label class="form-label">공동현관 비번 <span style="font-size:11px; color:#2563eb; font-weight:normal;">(건물/동 공통)</span></label>
             <input type="text" id="formCommonPw" class="form-input" placeholder="예: #1234* / 종1234">
           </div>
-          <div class="form-group">
-            <label class="form-label">세대 도어락 비번</label>
+          <div class="form-group" id="doorPwGroup">
+            <label class="form-label" id="doorPwLabel">세대 도어락 비번</label>
             <input type="text" id="formDoorPw" class="form-input" placeholder="예: 5678*">
           </div>
         </div>
@@ -1484,8 +1489,8 @@
                     ➕ 호수 추가
                   </button>
                 </div>
-                <div class="dong-common-pw-badge">
-                  🔑 공동: <span>${dongCommonPw || '없음'}</span>
+                <div class="dong-common-pw-badge" style="cursor:pointer;" onclick="promptEditDongCommonPw('${complex.dong}', '${complex.jibun}', '${bDong}', '${dongCommonPw}')" title="클릭하여 공동현관 비번 수정">
+                  🔑 공동: <span>${dongCommonPw || '없음'}</span> <span style="font-size:10px; color:#64748b; margin-left:2px;">✏️</span>
                 </div>
               </div>
 
@@ -1522,7 +1527,7 @@
                     ${unitScheduleBadge}
                   </div>
                   <div class="unit-door-pw">
-                    ${p.ho ? '세대 도어락' : '🔑 현관 도어락'}: <span>${p.doorPw || p.commonPw || '미등록'}</span>
+                    ${p.ho ? '세대 도어락' : '🔑 공동현관'}: <span>${p.ho ? (p.doorPw || '미등록') : (p.commonPw || p.doorPw || '미등록')}</span>
                   </div>
                 </div>
 
@@ -1683,11 +1688,73 @@
       document.getElementById('formClientPhone').value = '';
       document.getElementById('formClientName').value = '';
       
+      window._forceShowCommonPw = false;
       // 만약 지번/동이 미리 채워져 있다면 공동비번 자동완성 시도
       if (presetJibun && !presetCommonPw) {
         onJibunOrDongChanged();
       }
+      updatePasswordFieldsVisibility();
       openModal('propModal');
+    }
+
+    function toggleForceShowCommonPw() {
+      window._forceShowCommonPw = true;
+      updatePasswordFieldsVisibility();
+      document.getElementById('formCommonPw').focus();
+    }
+
+    function promptEditDongCommonPw(dong, jibun, bDong, currentPw) {
+      const dongTitle = (bDong && bDong !== '0') ? `${jibun} (${bDong})` : `${jibun} 건물`;
+      const newPw = prompt(`🔑 [${dong} ${dongTitle}] 공동현관 비밀번호 수정:`, currentPw || '');
+      if (newPw === null) return; // 취소됨
+      const trimmed = newPw.trim();
+      properties.forEach(p => {
+        if (p.dong === dong && p.jibun === jibun && ((p.bDong || '0') === bDong)) {
+          p.commonPw = trimmed;
+        }
+      });
+      saveData();
+      renderApp();
+      showToast('🔑 공동현관 비밀번호가 업데이트되었습니다!');
+    }
+
+    // 호수 유무 및 기존 건물/동 공동비번 존재 여부에 따라 공동현관 입력칸 자동 숨김/표시
+    function updatePasswordFieldsVisibility() {
+      const dong = document.getElementById('formDong').value.trim();
+      const jibun = document.getElementById('formJibun').value.trim();
+      let bDong = document.getElementById('formBDong').value.trim();
+      if (!bDong) bDong = '0';
+      const ho = document.getElementById('formHo').value.trim();
+      const editId = document.getElementById('editPropId').value;
+
+      // 현재 건물/동에 이미 등록된 다른 매물이 있는지 확인
+      const existingInDong = properties.filter(p => 
+        p.dong === dong && p.jibun === jibun && ((p.bDong || '0') === bDong)
+      );
+      const existingCommonPw = existingInDong.find(p => p.commonPw && p.commonPw.trim() !== '')?.commonPw || document.getElementById('formCommonPw').value.trim();
+
+      const commonPwGroup = document.getElementById('commonPwGroup');
+      const pwRowContainer = document.getElementById('pwRowContainer');
+      const noticeBar = document.getElementById('commonPwNoticeBar');
+      const noticeVal = document.getElementById('commonPwNoticeVal');
+      const doorPwLabel = document.getElementById('doorPwLabel');
+
+      // 호수가 입력되어 있거나(개별 호수 수정/등록), 이미 해당 동에 매물이 있는 상태에서 호수를 추가할 때는
+      // 호수별 정보에 굳이 공동현관 비번 입력칸을 중복 노출하지 않음!
+      const isUnitMode = (ho !== '') || (editId !== '' && ho !== '') || (existingInDong.length > 0 && !window._forceShowCommonPw);
+
+      if (isUnitMode && !window._forceShowCommonPw) {
+        commonPwGroup.style.display = 'none';
+        pwRowContainer.style.gridTemplateColumns = '1fr';
+        noticeBar.style.display = 'flex';
+        noticeVal.textContent = existingCommonPw || '미등록';
+        doorPwLabel.textContent = ho ? `🚪 ${ho} 세대 도어락 비번` : '세대 도어락 비번';
+      } else {
+        commonPwGroup.style.display = 'block';
+        pwRowContainer.style.gridTemplateColumns = '1fr 1fr';
+        noticeBar.style.display = 'none';
+        doorPwLabel.textContent = ho ? '세대 도어락 비번' : '세대 도어락 (호수 있을 때)';
+      }
     }
 
     // 같은 지번 및 동 입력 시 기존 공동현관 비번 및 건물명 자동 완성
@@ -1697,30 +1764,32 @@
       let bDong = document.getElementById('formBDong').value.trim();
       if (!bDong) bDong = '0';
 
-      if (!jibun) return;
+      if (jibun) {
+        const matched = properties.find(p => 
+          p.dong === dong && 
+          p.jibun === jibun && 
+          ((p.bDong || '0') === bDong)
+        );
 
-      const matched = properties.find(p => 
-        p.dong === dong && 
-        p.jibun === jibun && 
-        ((p.bDong || '0') === bDong)
-      );
-
-      if (matched) {
-        const commInput = document.getElementById('formCommonPw');
-        const bldgInput = document.getElementById('formBuilding');
-        if (!commInput.value && matched.commonPw) {
-          commInput.value = matched.commonPw;
-        }
-        if (!bldgInput.value && matched.building) {
-          bldgInput.value = matched.building;
+        if (matched) {
+          const commInput = document.getElementById('formCommonPw');
+          const bldgInput = document.getElementById('formBuilding');
+          if (!commInput.value && matched.commonPw) {
+            commInput.value = matched.commonPw;
+          }
+          if (!bldgInput.value && matched.building) {
+            bldgInput.value = matched.building;
+          }
         }
       }
+      updatePasswordFieldsVisibility();
     }
 
     function openEditPropertyModal(propId) {
       const p = properties.find(item => item.id === propId);
       if (!p) return;
 
+      window._forceShowCommonPw = false;
       document.getElementById('editPropId').value = p.id;
       document.getElementById('propModalTitle').textContent = `✏️ 물건지 정보/비번 수정`;
       document.getElementById('propSubmitBtn').textContent = '수정 내용 저장';
@@ -1740,6 +1809,7 @@
       document.getElementById('formTenantPhone').value = p.tenantPhone || '';
       document.getElementById('formPropMemo').value = p.propMemo || '';
 
+      updatePasswordFieldsVisibility();
       openModal('propModal');
     }
 
