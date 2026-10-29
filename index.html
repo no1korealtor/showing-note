@@ -1323,7 +1323,13 @@
       });
 
       if (list.length === 0) {
-        document.getElementById('propCount').textContent = `총 0개 집`;
+        const activeCount = properties.filter(p => !p.isArchived).length;
+        const countEl = document.getElementById('propCount');
+        if (currentDongFilter === 'ARCHIVED') {
+          countEl.innerHTML = `📦 보관된 매물: <b style="color:#64748b;">0개</b>`;
+        } else {
+          countEl.innerHTML = `📦 보관함: <b style="color:#2563eb;">${activeCount}</b> / ${MAX_FREE_PROPERTIES}개 <span style="font-size:11px; color:#64748b; font-weight:normal;">(무료 플랜)</span>`;
+        }
         container.innerHTML = `
           <div style="text-align:center; padding: 50px 20px; color:#94a3b8;">
             <div style="font-size:36px; margin-bottom:8px;">🏡</div>
@@ -1340,7 +1346,7 @@
       // Active properties count (excluding archived ones)
       const activeCount = properties.filter(p => !p.isArchived).length;
       const countEl = document.getElementById('propCount');
-      if (currentFilterStatus === 'ARCHIVED') {
+      if (currentDongFilter === 'ARCHIVED') {
         countEl.innerHTML = `📦 보관된 매물: <b style="color:#64748b;">${list.length}개</b>`;
       } else {
         let countColor = '#2563eb';
