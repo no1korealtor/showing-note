@@ -371,27 +371,44 @@
     .btn-unit-add-showing:active { background: #dbeafe; }
 
   
-    /* Floating Manual Button (Always visible) */
-    .btn-floating-manual {
+    /* Floating Bottom Dock (명함 & 사용설명서) */
+    .floating-bottom-dock {
       position: fixed;
-      right: 16px;
-      bottom: calc(20px + env(safe-area-inset-bottom, 20px));
+      right: 14px;
+      bottom: calc(18px + env(safe-area-inset-bottom, 18px));
       z-index: 40;
-      background: #0f172a;
-      color: #f8fafc;
-      border: 1.5px solid #334155;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-      padding: 9px 14px;
-      border-radius: 24px;
-      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-floating-pill {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+      padding: 8px 13px;
+      border-radius: 22px;
+      font-size: 12.5px;
       font-weight: 800;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       text-decoration: none;
-      transition: transform 0.15s, background 0.15s;
+      transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
     }
-    .btn-floating-manual:active {
+    .btn-floating-profile {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1.5px solid #93c5fd;
+    }
+    .btn-floating-guide {
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1.5px solid #334155;
+    }
+    .btn-floating-pill:active {
       transform: scale(0.94);
+    }
+    .btn-floating-profile:active {
+      background: #dbeafe;
+    }
+    .btn-floating-guide:active {
       background: #1e293b;
     }

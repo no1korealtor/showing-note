@@ -4,7 +4,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     const STORAGE_KEY_SNAPSHOTS = 'showing_diary_snapshots';
     const MAX_FREE_PROPERTIES = 100; // 개인 무료 플랜 최대 보관 매물 한도
 
-    let settings = { pin: '0000', dongs: ['성산동', '중동'], baseDistrict: '서울특별시 마포구' };
+    let settings = { pin: '0000', dongs: [], baseDistrict: '' };
     let properties = [];
     let showings = [];
     let currentDongFilter = 'ALL';
@@ -36,7 +36,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           // Schema healing & backward compatibility
           properties = JSON.parse(p).map(item => ({
             id: item.id || 'prop-' + Date.now(),
-            dong: item.dong || settings.dongs[0] || '성산동',
+            dong: item.dong || (settings.dongs && settings.dongs[0]) || '',
             jibun: item.jibun || '',
             ho: item.ho || '',
             building: item.building || item.buildingName || '',
@@ -256,7 +256,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     }
 
     function initDefaultDataIfEmpty() {
-      if (properties.length === 0) {
+      // 신규 사용자를 위해 기본 샘플 매물은 생성하지 않고 비워둡니다.
+      if (false && properties.length === 0) {
         properties = [
           {
             id: 'prop-1',
@@ -382,13 +383,29 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         } else {
           countEl.innerHTML = `📦 보관함: <b style="color:#2563eb;">${activeCount}</b> / ${MAX_FREE_PROPERTIES}개 <span style="font-size:11px; color:#64748b; font-weight:normal;">(무료 플랜)</span>`;
         }
-        container.innerHTML = `
-          <div style="text-align:center; padding: 50px 20px; color:#94a3b8;">
-            <div style="font-size:36px; margin-bottom:8px;">🏡</div>
-            <p style="font-weight:700; color:#475569;">등록된 집이 없습니다</p>
-            <p style="font-size:13px; margin-top:4px;">우측 상단 <b>[➕ 새 매물 등록]</b>을 눌러 주소를 추가하세요.</p>
-          </div>
-        `;
+        if (!settings.dongs || settings.dongs.length === 0) {
+          container.innerHTML = `
+            <div style="text-align:center; padding: 36px 20px; background:#ffffff; border-radius:14px; border:1.5px dashed #cbd5e1; margin-top:10px;">
+              <div style="font-size:38px; margin-bottom:8px;">📍</div>
+              <h3 style="font-size:16px; font-weight:800; color:#1e293b; margin-bottom:6px;">활동 지역(동)을 먼저 설정해 주세요</h3>
+              <p style="font-size:13px; color:#64748b; line-height:1.5; margin-bottom:16px;">
+                현재 등록된 활동 동이 없습니다.<br>
+                자주 활동하시는 구/동을 등록하시면 매물 관리와 주소 입력이 훨씬 편리해집니다.
+              </p>
+              <button type="button" onclick="openSettingsModal()" style="background:#1d4ed8; color:white; border:none; padding:10px 18px; border-radius:8px; font-size:13.5px; font-weight:800; cursor:pointer;">
+                ⚙️ 활동 지역 설정하러 가기
+              </button>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div style="text-align:center; padding: 50px 20px; color:#94a3b8;">
+              <div style="font-size:36px; margin-bottom:8px;">🏡</div>
+              <p style="font-weight:700; color:#475569;">등록된 집이 없습니다</p>
+              <p style="font-size:13px; margin-top:4px;">우측 상단 <b>[➕ 새 매물 등록]</b>을 눌러 주소를 추가하세요.</p>
+            </div>
+          `;
+        }
         return;
       }
 
@@ -687,6 +704,11 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         const container = document.getElementById('dongPills');
         const hiddenCount = properties.filter(p => p.isArchived).length;
         
+        if (!settings.dongs || settings.dongs.length === 0) {
+          container.innerHTML = `<button class="dong-pill active" onclick="openSettingsModal()" style="background:#eff6ff; color:#1d4ed8; border:1.5px dashed #93c5fd; font-weight:800;">📍 활동 지역(동) 설정 필요 +</button>`;
+          return;
+        }
+
         let html = `<button class="dong-pill ${currentDongFilter === 'ALL' ? 'active' : ''}" onclick="setDongFilter('ALL')">전체 동</button>`;
         settings.dongs.forEach(d => {
           html += `<button class="dong-pill ${currentDongFilter === d ? 'active' : ''}" onclick="setDongFilter('${d}')">${d}</button>`;
@@ -707,6 +729,12 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
     /* Modal Handlers */
     function openNewPropertyModal(presetDong, presetJibun, presetBDong, presetBuilding, presetCommonPw) {
+      if (!settings.dongs || settings.dongs.length === 0) {
+        if (confirm('📍 등록된 활동 지역(동)이 없습니다.\n먼저 [설정]에서 활동하시는 동(예: 역삼동, 판교동 등)을 등록하시겠습니까?')) {
+          openSettingsModal();
+        }
+        return;
+      }
       // 신규 등록 시 무료 플랜 100개 한도 검사
       const activeCount = properties.filter(p => !p.isArchived).length;
       if (activeCount >= MAX_FREE_PROPERTIES) {
@@ -1145,13 +1173,17 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     function openSettingsModal() {
       renderSettingsDongs();
       const dist = document.getElementById('baseDistrict');
-      if (dist) dist.value = settings.baseDistrict || '서울특별시 마포구';
+      if (dist) dist.value = settings.baseDistrict || '';
       openModal('settingsModal');
     }
 
     function renderSettingsDongs() {
       const c = document.getElementById('settingsDongChips');
       if (!c) return;
+      if (!settings.dongs || settings.dongs.length === 0) {
+        c.innerHTML = '<span style="font-size:12.5px; color:#94a3b8; font-style:italic;">등록된 동이 없습니다. 아래에서 동 이름을 추가해 주세요.</span>';
+        return;
+      }
       c.innerHTML = settings.dongs.map(d => `
         <span class="chip" style="display:inline-flex; align-items:center; gap:5px;">
           ${d} <span onclick="removeDong('${d}')" style="color:red; cursor:pointer;">✕</span>
@@ -1172,7 +1204,6 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     }
 
     function removeDong(d) {
-      if (settings.dongs.length <= 1) return alert('최소 1개 이상의 동이 필요합니다.');
       settings.dongs = settings.dongs.filter(item => item !== d);
       saveData();
       renderSettingsDongs();

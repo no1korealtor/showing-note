@@ -117,10 +117,9 @@
       <span>🏡 중개노트</span>
     </div>
     <div class="header-btns">
-      <a href="profile.html" class="btn-top" style="color:#1d4ed8; border-color:#93c5fd; background:#eff6ff; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;" title="대표 공인중개사 모바일 명함 & 신뢰 정보">🪪 소장 명함</a>
-      <button class="btn-top" onclick="lockApp()" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2; font-weight:800;" title="로그아웃 및 종료">🔒 잠금</button>
+      <button class="btn-top" onclick="lockApp()" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2; font-weight:800;" title="안전하게 로그아웃 및 종료">🚪 로그아웃</button>
       <button class="btn-top" onclick="openSettingsModal()">⚙️ 설정</button>
-      <button class="btn-top primary" onclick="openNewPropertyModal()">➕ 새 매물 등록</button>
+      <button class="btn-top primary" onclick="openNewPropertyModal()">➕ 새 매물</button>
     </div>
   </header>
 
@@ -581,10 +580,16 @@
   </div>
 
     <!-- Floating Manual Button (항상 노출되는 사용 설명서 바로가기) -->
-  <a href="guide.html" target="_blank" class="btn-floating-manual" title="중개노트 사용 설명서 보기">
-    <span>📖</span>
-    <span>사용설명서</span>
-  </a>
+  <div class="floating-bottom-dock">
+    <a href="profile.html" class="btn-floating-pill btn-floating-profile" title="대표 공인중개사 모바일 명함 & 신뢰 정보">
+      <span>🪪</span>
+      <span>소장 명함</span>
+    </a>
+    <a href="guide.html" target="_blank" class="btn-floating-pill btn-floating-guide" title="중개노트 사용 설명서 보기">
+      <span>📖</span>
+      <span>사용설명서</span>
+    </a>
+  </div>
 
   <div id="toast"></div>
 
