@@ -398,13 +398,73 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             </div>
           `;
         } else {
-          container.innerHTML = `
-            <div style="text-align:center; padding: 50px 20px; color:#94a3b8;">
-              <div style="font-size:36px; margin-bottom:8px;">🏡</div>
-              <p style="font-weight:700; color:#475569;">등록된 집이 없습니다</p>
-              <p style="font-size:13px; margin-top:4px;">우측 상단 <b>[➕ 새 매물 등록]</b>을 눌러 주소를 추가하세요.</p>
-            </div>
-          `;
+          const rawSearchWord = document.getElementById('searchInput').value.trim();
+          const targetDong = (currentDongFilter !== 'ALL' && currentDongFilter !== 'ARCHIVED') ? currentDongFilter : (settings.dongs[0] || '');
+          const escapedSearchWord = escapeHtml(rawSearchWord);
+          
+          if (rawSearchWord) {
+            container.innerHTML = `
+              <div style="text-align:center; padding: 40px 16px; background:#ffffff; border-radius:16px; border:1.5px dashed #cbd5e1; margin-top:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                <div style="font-size:38px; margin-bottom:10px;">🔍</div>
+                <h3 style="font-size:16px; font-weight:800; color:#1e293b; margin-bottom:6px;">
+                  '<span style="color:#2563eb;">${escapedSearchWord}</span>' 등록 매물이 없습니다
+                </h3>
+                <p style="font-size:13px; color:#64748b; line-height:1.5; margin-bottom:18px;">
+                  새로운 매물인가요? 입력하신 주소로 바로 등록할 수 있습니다.
+                </p>
+                <button type="button" onclick="openNewPropertyModal('${targetDong}', '${escapedSearchWord}')" style="
+                  width: 100%;
+                  max-width: 320px;
+                  background: #2563eb;
+                  color: #ffffff;
+                  border: none;
+                  padding: 13px 18px;
+                  border-radius: 10px;
+                  font-size: 14.5px;
+                  font-weight: 800;
+                  cursor: pointer;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+                ">
+                  <span>➕</span>
+                  <span>'${escapedSearchWord}' 새 매물 바로 등록</span>
+                </button>
+              </div>
+            `;
+          } else {
+            container.innerHTML = `
+              <div style="text-align:center; padding: 40px 16px; background:#ffffff; border-radius:16px; border:1.5px dashed #cbd5e1; margin-top:8px;">
+                <div style="font-size:38px; margin-bottom:10px;">🏡</div>
+                <h3 style="font-size:16px; font-weight:800; color:#1e293b; margin-bottom:6px;">등록된 집이 없습니다</h3>
+                <p style="font-size:13px; color:#64748b; line-height:1.5; margin-bottom:18px;">
+                  첫 번째 매물 주소를 등록하고 현장 쇼잉을 관리해보세요.
+                </p>
+                <button type="button" onclick="openNewPropertyModal('${targetDong}', '')" style="
+                  width: 100%;
+                  max-width: 280px;
+                  background: #2563eb;
+                  color: #ffffff;
+                  border: none;
+                  padding: 13px 18px;
+                  border-radius: 10px;
+                  font-size: 14.5px;
+                  font-weight: 800;
+                  cursor: pointer;
+                  display: inline-flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+                ">
+                  <span>➕</span>
+                  <span>새 매물 등록하기</span>
+                </button>
+              </div>
+            `;
+          }
         }
         return;
       }
@@ -509,23 +569,20 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
         html += `
           <div class="complex-card">
-            <!-- Complex Top Header (주소 우측 지도열기 + 아래 전폭 신규 동·호수 추가) -->
+            <!-- Complex Top Header (주소 클릭 시 네이버 지도 바로 열기 & 중복 큰버튼 제거) -->
             <div class="complex-header">
               <div class="complex-top-row">
                 <div class="complex-addr-title">
                   <span class="star-bullet">★</span>
-                  <span class="addr-dong-badge">${complex.dong}</span>
-                  <span>${complex.jibun}</span>
+                  <a href="${naverUrl}" target="_blank" class="complex-addr-link" title="터치하면 네이버 지도로 열립니다">
+                    <span class="addr-dong-badge">${complex.dong}</span>
+                    <span>${complex.jibun}</span>
+                    <span class="complex-map-hint">📍 지도</span>
+                  </a>
                   ${complexBadge}
                 </div>
-                <a href="${naverUrl}" target="_blank" class="btn-complex-map">📍 지도열기</a>
               </div>
               ${complexBuildingName ? `<div class="complex-building-title">🏢 ${escapeHtml(complexBuildingName)}</div>` : ''}
-
-              <button type="button" class="btn-complex-add-full" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '', '${escapeHtml(complexBuildingName)}')">
-                <span>➕</span>
-                <span>이 지번에 신규 동·호수 추가</span>
-              </button>
             </div>
 
             <!-- Building Dong Groups -->
@@ -595,92 +652,104 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                   </div>
                 </div>
 
-                <!-- Unit Contacts Row (Tenant & Owner Call Buttons) -->
-                <div class="unit-contacts-row">
-                  ${p.tenantPhone ? `
-                    <a href="tel:${p.tenantPhone}" class="btn-tenant-call" style="background:#e0f2fe; border:1px solid #bae6fd; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#0369a1; text-decoration:none;">📞 세입자(${escapeHtml(p.tenantName || '거주자')}) 통화</a>
-                  ` : ''}
-                  ${p.ownerPhone ? `
-                    <a href="tel:${p.ownerPhone}" class="btn-owner-call" style="background:#fef3c7; border:1px solid #fde68a; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#92400e; text-decoration:none;">📞 ${escapeHtml(p.ownerName || '임대인')} 통화</a>
-                  ` : ''}
-                  ${!p.tenantPhone && !p.ownerPhone ? `<span style="font-size:12px; color:#94a3b8;">등록된 연락처 없음</span>` : ''}
-                </div>
+                <!-- Slim Accordion Toggle Button: 기본 상태는 깔끔하게 접어두고 필요시만 펼치기 -->
+                <button type="button" class="btn-unit-toggle" id="toggleBtn_${p.id}" onclick="toggleUnitDetail('${p.id}')">
+                  <span style="display:flex; align-items:center; gap:5px;">
+                    <span>📋 상세 정보 / 손님 약속</span>
+                    ${pShows.length > 0 ? `<span style="background:#dbeafe; color:#1e40af; font-size:11px; padding:1px 6px; border-radius:10px; font-weight:800;">쇼잉 ${pShows.length}</span>` : ''}
+                  </span>
+                  <span id="toggleArrow_${p.id}" style="font-size:11px; color:#64748b;">▼ 펼치기</span>
+                </button>
 
-                <!-- Unit Special Memo (if any) -->
-                ${p.propMemo ? `
-                  <div class="unit-memo-box">
-                    <span style="font-size:14px; line-height:1;">💡</span>
-                    <span style="flex:1; line-height:1.4;">${escapeHtml(p.propMemo)}</span>
+                <!-- Collapsible Detailed Area -->
+                <div class="unit-collapsible-detail" id="unitDetail_${p.id}">
+                  <!-- Unit Contacts Row (Tenant & Owner Call Buttons) -->
+                  <div class="unit-contacts-row">
+                    ${p.tenantPhone ? `
+                      <a href="tel:${p.tenantPhone}" class="btn-tenant-call" style="background:#e0f2fe; border:1px solid #bae6fd; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#0369a1; text-decoration:none;">📞 세입자(${escapeHtml(p.tenantName || '거주자')}) 통화</a>
+                    ` : ''}
+                    ${p.ownerPhone ? `
+                      <a href="tel:${p.ownerPhone}" class="btn-owner-call" style="background:#fef3c7; border:1px solid #fde68a; border-radius:6px; padding:5px 10px; font-size:12px; font-weight:800; color:#92400e; text-decoration:none;">📞 ${escapeHtml(p.ownerName || '임대인')} 통화</a>
+                    ` : ''}
+                    ${!p.tenantPhone && !p.ownerPhone ? `<span style="font-size:12px; color:#94a3b8;">등록된 세입자/임대인 연락처 없음</span>` : ''}
                   </div>
-                ` : ''}
 
-                <!-- Indented Showing Tree for this Unit (일정이 있을 때만 표시!) -->
-                ${pShows.length > 0 ? `
-                  <div class="showing-tree" style="margin-top:10px; border-radius:8px; background:#f8fafc; padding:10px 12px;">
-                    <div class="tree-header-row">
-                      <span class="tree-header-label">
-                        <span>🤝 쇼잉 약속 & 현장 브리핑</span>
-                        <span style="font-size:11px; background:#e0e7ff; color:#3730a3; padding:1px 6px; border-radius:10px;">${pShows.length}건</span>
-                      </span>
+                  <!-- Unit Special Memo (if any) -->
+                  ${p.propMemo ? `
+                    <div class="unit-memo-box">
+                      <span style="font-size:14px; line-height:1;">💡</span>
+                      <span style="flex:1; line-height:1.4;">${escapeHtml(p.propMemo)}</span>
                     </div>
+                  ` : ''}
 
-                    <div class="tree-branch-container">
-                      ${upcomingShows.length > 0 ? `
-                        <div class="tree-section-title title-upcoming">
-                          <span>🗓️ 예정된 쇼잉 (${upcomingShows.length})</span>
-                        </div>
-                        ${upcomingShows.map(s => `
-                          <div class="schedule-item-future">
-                            <div class="future-head">
-                              <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
-                              <span class="future-client">${escapeHtml(s.clientName || '손님')}</span>
-                              ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 전화</a>` : ''}
-                            </div>
-                            ${s.memo ? `<div class="future-memo">📝 ${escapeHtml(s.memo)}</div>` : ''}
-                            <div class="future-actions">
-                              <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">💬 브리핑/피드백</button>
-                              <button class="btn-mini-act" onclick="deleteShowing('${s.id}')">삭제</button>
-                            </div>
-                          </div>
-                        `).join('')}
-                      ` : ''}
+                  <!-- Indented Showing Tree for this Unit (일정이 있을 때만 표시!) -->
+                  ${pShows.length > 0 ? `
+                    <div class="showing-tree" style="margin-top:10px; border-radius:8px; background:#f8fafc; padding:10px 12px;">
+                      <div class="tree-header-row">
+                        <span class="tree-header-label">
+                          <span>🤝 쇼잉 약속 & 현장 브리핑</span>
+                          <span style="font-size:11px; background:#e0e7ff; color:#3730a3; padding:1px 6px; border-radius:10px;">${pShows.length}건</span>
+                        </span>
+                      </div>
 
-                      ${pastShows.length > 0 ? `
-                        <div class="tree-section-title title-past">
-                          <span>📋 지난 브리핑 기록 (${pastShows.length})</span>
-                        </div>
-                        ${pastShows.map(s => `
-                          <div class="schedule-item-past">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                              <span class="past-date">${s.date} ${s.time}</span>
-                              <span class="past-client">${escapeHtml(s.clientName || '손님')}</span>
-                              <button class="btn-mini-act" style="font-size:11px; padding:1px 5px;" onclick="deleteShowing('${s.id}')">✕</button>
-                            </div>
-                            ${s.feedback ? `<div class="past-feedback">💬 ${escapeHtml(s.feedback)}</div>` : (s.memo ? `<div class="past-feedback" style="color:#64748b;">📝 ${escapeHtml(s.memo)}</div>` : '')}
+                      <div class="tree-branch-container">
+                        ${upcomingShows.length > 0 ? `
+                          <div class="tree-section-title title-upcoming">
+                            <span>🗓️ 예정된 쇼잉 (${upcomingShows.length})</span>
                           </div>
-                        `).join('')}
-                      ` : ''}
+                          ${upcomingShows.map(s => `
+                            <div class="schedule-item-future">
+                              <div class="future-head">
+                                <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
+                                <span class="future-client">${escapeHtml(s.clientName || '손님')}</span>
+                                ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 전화</a>` : ''}
+                              </div>
+                              ${s.memo ? `<div class="future-memo">📝 ${escapeHtml(s.memo)}</div>` : ''}
+                              <div class="future-actions">
+                                <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">💬 브리핑/피드백</button>
+                                <button class="btn-mini-act" onclick="deleteShowing('${s.id}')">삭제</button>
+                              </div>
+                            </div>
+                          `).join('')}
+                        ` : ''}
+
+                        ${pastShows.length > 0 ? `
+                          <div class="tree-section-title title-past">
+                            <span>📋 지난 브리핑 기록 (${pastShows.length})</span>
+                          </div>
+                          ${pastShows.map(s => `
+                            <div class="schedule-item-past">
+                              <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="past-date">${s.date} ${s.time}</span>
+                                <span class="past-client">${escapeHtml(s.clientName || '손님')}</span>
+                                <button class="btn-mini-act" style="font-size:11px; padding:1px 5px;" onclick="deleteShowing('${s.id}')">✕</button>
+                              </div>
+                              ${s.feedback ? `<div class="past-feedback">💬 ${escapeHtml(s.feedback)}</div>` : (s.memo ? `<div class="past-feedback" style="color:#64748b;">📝 ${escapeHtml(s.memo)}</div>` : '')}
+                            </div>
+                          `).join('')}
+                        ` : ''}
+                      </div>
+                    </div>
+                  ` : ''}
+
+                  <!-- Unit Actions Row: [➕ 일정추가] 버튼과 수정/정리 버튼을 한 줄에 깔끔하게 배치! -->
+                  <div class="unit-actions-row">
+                    <div>
+                      <button type="button" class="btn-unit-add-showing" onclick="openAddShowingModal('${p.id}')">
+                        ➕ 일정 추가
+                      </button>
+                    </div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                      <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 호수 정보/비번 수정</button>
+                      ${p.isArchived ? `
+                        <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px;">♻️ 메인으로 살리기</button>
+                        <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
+                      ` : `
+                        <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📦 보관/삭제</button>
+                      `}
                     </div>
                   </div>
-                ` : ''}
-
-                <!-- Unit Actions Row: [➕ 일정추가] 버튼과 수정/정리 버튼을 한 줄에 깔끔하게 배치! -->
-                <div class="unit-actions-row">
-                  <div>
-                    <button type="button" class="btn-unit-add-showing" onclick="openAddShowingModal('${p.id}')">
-                      ➕ 일정 추가
-                    </button>
-                  </div>
-                  <div style="display:flex; gap:6px; align-items:center;">
-                    <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 호수 정보/비번 수정</button>
-                    ${p.isArchived ? `
-                      <button class="btn-mini-act" onclick="restoreProperty('${p.id}')" style="color:#047857; background:#dcfce7; border:1px solid #86efac; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px;">♻️ 메인으로 살리기</button>
-                      <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#dc2626; border:1px solid #fecaca; font-size:11px; padding:3px 7px; border-radius:6px; background:#fff;">완전삭제</button>
-                    ` : `
-                      <button class="btn-mini-act" onclick="openOrganizeModal('${p.id}')" style="color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; background:#fff;">📁 매물정리</button>
-                    `}
-                  </div>
-                </div>
+                </div> <!-- .unit-collapsible-detail -->
               </div>
             `;
           });
@@ -698,6 +767,25 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       });
 
       container.innerHTML = html;
+    }
+
+    /* Unit Detail Accordion Toggle Function */
+    function toggleUnitDetail(propId) {
+      const detailEl = document.getElementById(`unitDetail_${propId}`);
+      const btnEl = document.getElementById(`toggleBtn_${propId}`);
+      const arrowEl = document.getElementById(`toggleArrow_${propId}`);
+      if (!detailEl) return;
+
+      const isOpen = detailEl.classList.contains('open');
+      if (isOpen) {
+        detailEl.classList.remove('open');
+        btnEl?.classList.remove('active');
+        if (arrowEl) arrowEl.textContent = '▼ 펼치기';
+      } else {
+        detailEl.classList.add('open');
+        btnEl?.classList.add('active');
+        if (arrowEl) arrowEl.textContent = '▲ 접기';
+      }
     }
 
     function renderDongPills() {
