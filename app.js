@@ -601,9 +601,9 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                 <div style="display:flex; align-items:center; gap:6px;">
                   ${isRealDong ? `
                     <span class="dong-group-badge">🏢 ${escapeHtml(bDong)}</span>
-                    <span style="font-size:12px; color:#64748b;">(${propsInDong.length}건)</span>
+                    <span style="font-size:12px; color:#64748b;">(매물 ${propsInDong.length}건)</span>
                   ` : `
-                    <span style="font-size:13px; font-weight:800; color:#334155;">🏠 건물 매물 (${propsInDong.length}건)</span>
+                    <span style="font-size:13px; font-weight:800; color:#334155;">🏠 매물 ${propsInDong.length}건</span>
                   `}
                   <button type="button" onclick="openNewPropertyModal('${complex.dong}', '${complex.jibun}', '${isRealDong ? escapeHtml(bDong) : ''}', '${escapeHtml(complexBuildingName)}', '${dongCommonPw}')" style="background:#ffffff; border:1px solid #93c5fd; color:#2563eb; font-size:11px; font-weight:800; padding:2px 7px; border-radius:5px; cursor:pointer;">
                     ➕ 호수 추가
@@ -643,7 +643,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                 <!-- Unit Header Row (Ho, Door PW, Schedule badge) -->
                 <div class="unit-header-row">
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#f1f5f9; color:#475569; border-color:#cbd5e1;'}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)} (호수 미지정)` : '🏢 건물전체')}</span>
+                    <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#fef3c7; color:#92400e; border-color:#fde68a;'}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)} (호수 미입력)` : '⚠️ 호수 미입력')}</span>
                     ${unitScheduleBadge}
                   </div>
                   <div class="unit-door-pw">
