@@ -569,7 +569,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
         html += `
           <div class="complex-card">
-            <!-- Complex Top Header (주소 클릭 시 네이버 지도 바로 열기 & 중복 큰버튼 제거) -->
+            <!-- Complex Top Header (주소 + 건물명 한 줄 통합 & 주소 클릭 시 지도 연동) -->
             <div class="complex-header">
               <div class="complex-top-row">
                 <div class="complex-addr-title">
@@ -577,11 +577,11 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                   <a href="${naverUrl}" target="_blank" class="complex-addr-link" title="터치하면 네이버 지도로 열립니다">
                     <span class="addr-dong-badge">${complex.dong}</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8;">${complex.jibun}</span>
+                    ${complexBuildingName ? `<span style="font-size: 15px; font-weight: 800; color: #3b82f6; margin-left: 2px;">(${escapeHtml(complexBuildingName)})</span>` : ''}
                   </a>
                   ${complexBadge}
                 </div>
               </div>
-              ${complexBuildingName ? `<div class="complex-building-title">🏢 ${escapeHtml(complexBuildingName)}</div>` : ''}
             </div>
 
             <!-- Building Dong Groups -->
