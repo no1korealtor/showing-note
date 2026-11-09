@@ -589,10 +589,14 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         `;
 
         sortedDongs.forEach(bDong => {
-          const propsInDong = dongMap.get(bDong);
+          const allPropsInDong = dongMap.get(bDong);
           // Common password for this dong (shared among units)
-          const dongCommonPw = propsInDong.find(p => p.commonPw && p.commonPw.trim() !== '')?.commonPw || '';
+          const dongCommonPw = allPropsInDong.find(p => p.commonPw && p.commonPw.trim() !== '')?.commonPw || '';
           const isRealDong = (bDong !== '0');
+
+          // 진짜 호수(유닛) 매물만 필터링 (호수가 있는 매물이 1개라도 있으면, 호수 없는 껍데기 카드는 목록에서 자동 숨김)
+          const realUnitProps = allPropsInDong.filter(p => p.ho && p.ho.trim() !== '');
+          const propsInDong = realUnitProps.length > 0 ? realUnitProps : allPropsInDong;
 
           html += `
             <div class="dong-group-section">
@@ -643,7 +647,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                 <!-- Unit Header Row (Ho, Door PW, Schedule badge) -->
                 <div class="unit-header-row">
                   <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#fef3c7; color:#92400e; border-color:#fde68a;'}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)} (호수 미입력)` : '⚠️ 호수 미입력')}</span>
+                    <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#eff6ff; color:#1e40af; border-color:#bfdbfe;'}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)}` : '🏢 건물')}</span>
                     ${unitScheduleBadge}
                   </div>
                   <div class="unit-door-pw">
