@@ -576,8 +576,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                   <span class="star-bullet">★</span>
                   <a href="${naverUrl}" target="_blank" class="complex-addr-link" title="터치하면 네이버 지도로 열립니다">
                     <span class="addr-dong-badge">${complex.dong}</span>
-                    <span>${complex.jibun}</span>
-                    <span class="complex-map-hint">📍 지도</span>
+                    <span style="text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8;">${complex.jibun}</span>
                   </a>
                   ${complexBadge}
                 </div>

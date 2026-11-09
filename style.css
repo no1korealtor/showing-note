@@ -291,14 +291,10 @@
     }
     .complex-addr-link {
       color: #0f172a; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
-      padding: 2px 6px; border-radius: 6px; transition: background 0.15s;
+      padding: 2px 4px; border-radius: 6px; transition: background 0.15s;
     }
     .complex-addr-link:active {
       background: #e2e8f0; color: #1d4ed8;
-    }
-    .complex-map-hint {
-      font-size: 12.5px; color: #16a34a; font-weight: 800; display: inline-flex; align-items: center; gap: 2px;
-      background: #dcfce7; border: 1px solid #bbf7d0; padding: 1px 6px; border-radius: 12px; margin-left: 2px;
     }
     .complex-building-title {
       font-size: 13.5px; font-weight: 700; color: #475569; margin-top: 4px; display: flex; align-items: center; gap: 4px;
