@@ -894,8 +894,12 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       showToast(`🏷️ [${phone} 손님] 쇼잉이 생성되었습니다! 보여줄 매물의 [+담기]를 누르세요.`);
     }
 
-    function setActiveSession(sessionId) {
+    function setActiveSession(sessionId, pushHistory = true) {
+      if (sessionId === activeSessionId) return;
       activeSessionId = sessionId;
+      if (pushHistory) {
+        history.pushState({ sessionId: sessionId }, '');
+      }
       renderApp();
     }
 
@@ -1847,9 +1851,21 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
     /* Helpers & Android Back-Key Handling */
     window.addEventListener('popstate', (e) => {
+      // 1. 열려 있는 모달이 있으면 모달부터 닫기
       const openModals = document.querySelectorAll('.modal-overlay.open');
       if (openModals.length > 0) {
         openModals.forEach(m => m.classList.remove('open'));
+        return;
+      }
+
+      // 2. 모달이 없고 history state에 sessionId 정보가 있다면 해당 세션 상태 복원
+      if (e.state && e.state.sessionId !== undefined) {
+        setActiveSession(e.state.sessionId, false);
+      } else {
+        // history state가 없는 초기 진입 상태로 뒤로 온 경우
+        if (activeSessionId !== null) {
+          setActiveSession(null, false);
+        }
       }
     });
 
