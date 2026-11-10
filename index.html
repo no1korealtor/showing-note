@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>중개노트 - 공인중개사 현장 수첩</title>
-  <link rel="stylesheet" href="style.css?v=20261110_1">
+  <link rel="stylesheet" href="style.css?v=20261110_2">
 </head>
 <body>
 
@@ -84,18 +84,18 @@
       <div class="pin-dot" id="dot3"></div>
     </div>
     <div class="pin-pad">
-        <button type="button" class="pin-key" onpointerdown="pressPin('1')">1</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('2')">2</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('3')">3</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('4')">4</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('5')">5</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('6')">6</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('7')">7</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('8')">8</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('9')">9</button>
-        <button type="button" class="pin-key" style="font-size: 14px;" onpointerdown="clearPin()">취소</button>
-        <button type="button" class="pin-key" onpointerdown="pressPin('0')">0</button>
-        <button type="button" class="pin-key" style="font-size: 16px;" onpointerdown="backspacePin()">⌫</button>
+        <button type="button" class="pin-key" onclick="pressPin('1')">1</button>
+        <button type="button" class="pin-key" onclick="pressPin('2')">2</button>
+        <button type="button" class="pin-key" onclick="pressPin('3')">3</button>
+        <button type="button" class="pin-key" onclick="pressPin('4')">4</button>
+        <button type="button" class="pin-key" onclick="pressPin('5')">5</button>
+        <button type="button" class="pin-key" onclick="pressPin('6')">6</button>
+        <button type="button" class="pin-key" onclick="pressPin('7')">7</button>
+        <button type="button" class="pin-key" onclick="pressPin('8')">8</button>
+        <button type="button" class="pin-key" onclick="pressPin('9')">9</button>
+        <button type="button" class="pin-key" style="font-size: 14px;" onclick="clearPin()">취소</button>
+        <button type="button" class="pin-key" onclick="pressPin('0')">0</button>
+        <button type="button" class="pin-key" style="font-size: 16px;" onclick="backspacePin()">⌫</button>
       </div>
     <button type="button" onclick="exitOrCloseApp()" style="margin-top: 24px; background: none; border: 1px solid #475569; color: #94a3b8; padding: 8px 18px; border-radius: 20px; font-size: 13px; cursor: pointer;">
       ✕ 앱 종료하기
@@ -665,6 +665,6 @@
 
   <div id="toast"></div>
 
-  <script src="app.js?v=20261110_1" defer></script>
+  <script src="app.js?v=20261110_2" defer></script>
 </body>
 </html>

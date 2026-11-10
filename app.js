@@ -1081,21 +1081,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       renderApp();
       showToast('손님이 목록에서 삭제되었습니다.');
     }
-      const session = showingSessions.find(s => s.id === sessionId);
-      if (!session) return;
 
-      if (!confirm(`[${session.phone} 손님] 쇼잉 태그를 정말 삭제하시겠습니까? (매물 원본은 전혀 삭제되지 않습니다)`)) {
-        return;
-      }
-
-      showingSessions = showingSessions.filter(s => s.id !== sessionId);
-      if (activeSessionId === sessionId) activeSessionId = null;
-      saveData();
-      renderApp();
-      showToast('쇼잉 태그가 삭제되었습니다.');
-    }
-
-    /* Modal: 지난 쇼잉 투어 히스토리 보관함 렌더링 */
+    /* Modal: 지난 손님 안내/방문 기록 보관함 렌더링 */
     function openSessionHistoryModal() {
       const container = document.getElementById('sessionHistoryList');
       if (!container) return;
@@ -1106,8 +1093,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         container.innerHTML = `
           <div style="text-align:center; padding:30px 10px; color:#64748b;">
             <div style="font-size:32px; margin-bottom:6px;">🗂️</div>
-            <div style="font-size:14px; font-weight:800; color:#334155;">완료된 쇼잉 기록이 아직 없습니다</div>
-            <div style="font-size:12px; margin-top:4px;">쇼잉 투어가 끝나고 [쇼잉 투어 완료 및 보관]을 누르면 여기에 안전하게 보관됩니다.</div>
+            <div style="font-size:14px; font-weight:800; color:#334155;">완료된 손님 안내 기록이 아직 없습니다</div>
+            <div style="font-size:12px; margin-top:4px;">손님 안내가 끝나고 [안내 완료 및 기록 보관]을 누르면 여기에 안전하게 보관됩니다.</div>
           </div>
         `;
       } else {
@@ -1117,7 +1104,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px 14px;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="font-size:14px; font-weight:800; color:#1e40af;">
-                  🏷️ ${s.date} - <b>${escapeHtml(s.phone)}</b> 손님 (${escapeHtml(s.clientName || '손님')})
+                  👤 ${s.date} - <b>${escapeHtml(s.phone)}</b> 손님 (${escapeHtml(s.clientName || '손님')})
                 </span>
                 <span style="font-size:11.5px; color:#64748b; background:#e2e8f0; padding:2px 7px; border-radius:10px;">
                   매물 ${matchedProps.length}곳
@@ -1142,7 +1129,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
               </div>
 
               <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
-                <button type="button" class="btn-mini-act" style="color:#2563eb; border-color:#93c5fd;" onclick="reopenSession('${s.id}')">🔄 다시 쇼잉으로 살리기</button>
+                <button type="button" class="btn-mini-act" style="color:#2563eb; border-color:#93c5fd;" onclick="reopenSession('${s.id}')">🔄 다시 손님 목록으로 살리기</button>
                 <button type="button" class="btn-mini-act" style="color:#ef4444; border-color:#fca5a5;" onclick="deleteShowingSession('${s.id}'); openSessionHistoryModal();">삭제</button>
               </div>
             </div>
@@ -1161,7 +1148,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       saveData();
       closeModal('sessionHistoryModal');
       renderApp();
-      showToast(`🔄 [${session.phone} 손님] 쇼잉이 다시 활성화되었습니다!`);
+      showToast(`🔄 [${session.phone} 손님]이 다시 활성화되었습니다!`);
     }
 
     /* Unit Detail Accordion Toggle Function */
