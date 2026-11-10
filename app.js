@@ -909,38 +909,44 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
       const activeSessions = showingSessions.filter(s => s.status === 'active');
 
-      let html = `
-        <button type="button" class="btn-new-showing-tag" onclick="openNewShowingSessionModal()" title="새로운 손님 등록 (보여줄 집 묶음)">
-          <span>👤➕</span>
-          <span>손님 등록</span>
-        </button>
-      `;
-
+      let optionsHtml = `<option value="">🏠 전체 매물 보기 (손님 미선택)</option>`;
       if (activeSessions.length > 0) {
-        // 전체 매물 칩 (손님 선택 해제)
-        html += `
-          <button type="button" class="showing-tag-chip ${activeSessionId === null ? 'active' : ''}" onclick="setActiveSession(null)">
-            <span>🏠 전체 매물</span>
-          </button>
-        `;
-
         activeSessions.forEach(s => {
-          const isCurrent = (s.id === activeSessionId);
           const dateShort = s.date ? s.date.slice(5).replace('-', '/') : '';
           const phoneShort = s.phone.length > 4 ? s.phone.slice(-4) : s.phone;
-          const label = `${dateShort} ${phoneShort}${s.clientName && s.clientName !== '손님' ? ` (${escapeHtml(s.clientName)})` : ''}`;
+          const namePart = (s.clientName && s.clientName !== '손님') ? ` [${s.clientName}]` : '';
           const count = s.propertyIds ? s.propertyIds.length : 0;
-
-          html += `
-            <button type="button" class="showing-tag-chip ${isCurrent ? 'active' : ''}" onclick="setActiveSession('${s.id}')" title="${s.date} ${s.phone}">
-              <span>👤 ${label}</span>
-              <span class="badge-count">${count}곳</span>
-            </button>
+          const isSelected = (s.id === activeSessionId) ? 'selected' : '';
+          optionsHtml += `
+            <option value="${s.id}" ${isSelected}>
+              👤 ${dateShort} ${s.time || '14:00'} - ${phoneShort}${namePart} (${count}곳 담김)
+            </option>
           `;
         });
       }
 
-      barEl.innerHTML = html;
+      const isActive = !!activeSessionId;
+
+      barEl.innerHTML = `
+        <div class="showing-select-wrap">
+          <select class="showing-dropdown-select ${isActive ? 'is-active-session' : ''}" onchange="onSessionSelectChange(this.value)">
+            ${optionsHtml}
+          </select>
+          <span class="showing-select-arrow">▼</span>
+        </div>
+        <button type="button" class="btn-new-showing-tag" onclick="openNewShowingSessionModal()" title="새로운 손님 등록">
+          <span>👤➕</span>
+          <span>손님 등록</span>
+        </button>
+      `;
+    }
+
+    function onSessionSelectChange(val) {
+      if (!val) {
+        setActiveSession(null);
+      } else {
+        setActiveSession(val);
+      }
     }
 
     function renderShowingActiveBanner() {

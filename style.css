@@ -82,25 +82,68 @@
     }
     .btn-search-clear:active { background: #94a3b8; color: white; }
 
-    /* 손님 세션 상단 바 (세련되고 단정한 캡슐 디자인) */
+    /* 손님 선택 풀다운 및 등록 바 (한 줄 슬림 레이아웃) */
     .showing-session-bar {
       display: flex;
       align-items: center;
-      gap: 7px;
-      overflow-x: auto;
-      padding: 2px 0 12px 0;
-      -webkit-overflow-scrolling: touch;
+      gap: 8px;
+      margin-bottom: 10px;
     }
-    .showing-session-bar::-webkit-scrollbar {
-      display: none;
+
+    .showing-select-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+    }
+
+    .showing-dropdown-select {
+      width: 100%;
+      height: 40px;
+      padding: 0 32px 0 12px;
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1e293b;
+      appearance: none;
+      -webkit-appearance: none;
+      outline: none;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      transition: all 0.15s ease;
+    }
+    .showing-dropdown-select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+    .showing-dropdown-select.is-active-session {
+      background: #eff6ff;
+      border-color: #2563eb;
+      color: #1d4ed8;
+      font-weight: 800;
+    }
+
+    .showing-select-arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 11px;
+      color: #64748b;
     }
 
     .btn-new-showing-tag {
       background: #1e293b;
       color: #ffffff;
       border: 1px solid #0f172a;
-      border-radius: 20px;
-      padding: 6px 14px;
+      border-radius: 10px;
+      height: 40px;
+      padding: 0 14px;
       font-size: 13px;
       font-weight: 800;
       white-space: nowrap;
@@ -109,47 +152,12 @@
       align-items: center;
       gap: 5px;
       flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12);
       transition: all 0.15s ease;
     }
     .btn-new-showing-tag:active {
       background: #0f172a;
       transform: scale(0.96);
-    }
-
-    .showing-tag-chip {
-      background: #ffffff;
-      color: #334155;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 13px;
-      font-weight: 700;
-      white-space: nowrap;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      flex-shrink: 0;
-      transition: all 0.15s ease;
-    }
-    .showing-tag-chip .badge-count {
-      background: #f1f5f9;
-      color: #475569;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 1px 6px;
-      border-radius: 10px;
-    }
-    .showing-tag-chip.active {
-      background: #2563eb;
-      color: #ffffff;
-      border-color: #1d4ed8;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
-    }
-    .showing-tag-chip.active .badge-count {
-      background: #ffffff;
-      color: #1d4ed8;
     }
 
     /* 손님 활성화 상태 배너 */
