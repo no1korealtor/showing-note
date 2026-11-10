@@ -204,24 +204,36 @@
       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
     }
 
+    /* 확실한 터치형 장바구니 버튼 (입체감 있는 버튼 디자인) */
     .showing-basket-btn {
       background: #eff6ff;
-      border: 1.5px solid #93c5fd;
+      border: 1.5px solid #3b82f6;
       color: #1d4ed8;
-      border-radius: 6px;
-      padding: 4px 9px;
-      font-size: 11.5px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      transition: all 0.15s ease;
+      gap: 5px;
+      box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
+      transition: all 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .showing-basket-btn:active {
+      transform: scale(0.95);
+      background: #dbeafe;
     }
     .showing-basket-btn.in-basket {
       background: #2563eb;
-      border-color: #1d4ed8;
+      border-color: #1e40af;
       color: #ffffff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+    .showing-basket-btn.in-basket:active {
+      background: #1d4ed8;
     }
 
     /* 손님 피드백 입력창 */
