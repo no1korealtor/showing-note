@@ -9,7 +9,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     let properties = [];
     let showings = [];
     let showingSessions = []; // 손님별 쇼잉 세션 (날짜 + 전화번호 + 태그 매핑 + 피드백)
-    let activeSessionId = null; // 현재 선택된 쇼잉 세션 (쇼잉 모드)
+    let activeSessionId = null; // 현재 선택된 쇼잉 세션 (장바구니 모드)
+    let isFilteringSessionOnly = false; // true: 손님에게 담긴 집만 보기, false: 전체 매물 보면서 장바구니에 담기
     let currentDongFilter = 'ALL';
     let currentSortBy = 'schedule'; // 기본: 일정 빠른순!
     let enteredPin = '';
@@ -460,8 +461,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
       // Filter properties
       let list = properties.filter(p => {
-        // 만약 특정 손님 쇼잉 세션(태그)이 활성화되어 있다면, 해당 손님에게 담긴 매물만 표시!
-        if (currentSession) {
+        // 특정 손님이 선택되어 있고 '담긴 집만 보기' 모드일 때만 필터링
+        if (currentSession && isFilteringSessionOnly) {
           if (!currentSession.propertyIds.includes(p.id)) return false;
         }
 
@@ -485,19 +486,19 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       if (list.length === 0) {
         const activeCount = properties.filter(p => !p.isArchived).length;
         const countEl = document.getElementById('propCount');
-        if (currentSession) {
-          countEl.innerHTML = `👤 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님: <b>0곳 담김</b>`;
+        if (currentSession && isFilteringSessionOnly) {
+          countEl.innerHTML = `🛒 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님 바구니: <b>0곳 담김</b>`;
           container.innerHTML = `
-            <div style="text-align:center; padding: 40px 16px; background:#eff6ff; border-radius:16px; border:1.5px dashed #93c5fd; margin-top:8px;">
-              <div style="font-size:36px; margin-bottom:8px;">👤</div>
+            <div style="text-align:center; padding: 36px 16px; background:#eff6ff; border-radius:16px; border:1.5px dashed #93c5fd; margin-top:8px;">
+              <div style="font-size:36px; margin-bottom:8px;">🛒</div>
               <h3 style="font-size:16px; font-weight:800; color:#1e40af; margin-bottom:6px;">
-                [${escapeHtml(currentSession.phone)}] 손님에게 보여줄 집이 아직 없습니다
+                [${escapeHtml(currentSession.phone)}] 손님 장바구니가 아직 비어 있습니다
               </h3>
               <p style="font-size:13px; color:#475569; line-height:1.5; margin-bottom:16px;">
-                상단의 <b>[✕ 전체 매물 보기]</b>를 누른 후, 보여주고 싶은 매물 카드의 <b>[➕ 보여줄집 담기]</b> 버튼을 톡톡 눌러보세요!
+                아래 <b>[전체 매물 둘러보며 담기]</b> 버튼을 누르면, 모든 집 카드 옆에 <b>[🛒 담기]</b> 버튼이 표시됩니다!
               </p>
-              <button type="button" onclick="setActiveSession(null)" style="background:#2563eb; color:white; border:none; padding:10px 18px; border-radius:8px; font-size:13.5px; font-weight:800; cursor:pointer;">
-                전체 매물 보러가기
+              <button type="button" onclick="toggleSessionFilterMode(false)" style="background:#2563eb; color:white; border:none; padding:11px 20px; border-radius:10px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 3px 8px rgba(37,99,235,0.25);">
+                🛒 전체 매물 둘러보며 담기
               </button>
             </div>
           `;
@@ -601,7 +602,12 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       const activeCount = properties.filter(p => !p.isArchived).length;
       const countEl = document.getElementById('propCount');
       if (currentSession) {
-        countEl.innerHTML = `👤 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님 보여줄 집: <b style="color:#1d4ed8;">${list.length}곳</b>`;
+        const basketCount = currentSession.propertyIds ? currentSession.propertyIds.length : 0;
+        if (isFilteringSessionOnly) {
+          countEl.innerHTML = `🛒 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님 바구니: <b style="color:#1d4ed8;">${basketCount}곳</b> 담김`;
+        } else {
+          countEl.innerHTML = `🛒 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님 장바구니 담는 중 (${basketCount}곳 담김)`;
+        }
       } else if (currentDongFilter === 'ARCHIVED') {
         countEl.innerHTML = `📦 보관된 매물: <b style="color:#64748b;">${list.length}개</b>`;
       } else {
@@ -897,9 +903,27 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     function setActiveSession(sessionId, pushHistory = true) {
       if (sessionId === activeSessionId) return;
       activeSessionId = sessionId;
-      if (pushHistory) {
-        history.pushState({ sessionId: sessionId }, '');
+      // 손님을 새로 선택하면 처음에는 그 손님에게 담긴 집 보기 상태로 시작 (원하면 전체 보기로 둘러보며 담기 가능)
+      if (sessionId) {
+        const sess = showingSessions.find(s => s.id === sessionId);
+        // 담긴 집이 없으면 바로 전체 매물 보면서 담기 모드로 전환
+        if (!sess || !sess.propertyIds || sess.propertyIds.length === 0) {
+          isFilteringSessionOnly = false;
+        } else {
+          isFilteringSessionOnly = true;
+        }
+      } else {
+        isFilteringSessionOnly = false;
       }
+      if (pushHistory) {
+        history.pushState({ sessionId: sessionId, isFilteringSessionOnly: isFilteringSessionOnly }, '');
+      }
+      renderApp();
+    }
+
+    function toggleSessionFilterMode(onlySession) {
+      isFilteringSessionOnly = onlySession;
+      history.pushState({ sessionId: activeSessionId, isFilteringSessionOnly: isFilteringSessionOnly }, '');
       renderApp();
     }
 
@@ -971,22 +995,34 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         <div class="showing-active-banner">
           <div class="showing-active-banner-top">
             <div class="showing-active-banner-title">
-              <span>👤</span>
-              <span>${session.date} (${session.time}) - <b>${escapeHtml(session.phone)}</b> 손님 (${escapeHtml(session.clientName || '손님')})</span>
+              <span>🛒</span>
+              <span><b>${escapeHtml(session.phone)}</b> 손님 장바구니 (${count}곳 담김)</span>
             </div>
-            <button type="button" class="btn-exit-showing" onclick="setActiveSession(null)">✕ 전체 매물 보기</button>
+            <div style="display:flex; gap:6px;">
+              ${isFilteringSessionOnly ? `
+                <button type="button" class="btn-exit-showing" onclick="toggleSessionFilterMode(false)" style="background:#ffffff; color:#1d4ed8; font-weight:800; border:none;">
+                  ➕ 전체 보며 담기
+                </button>
+              ` : `
+                <button type="button" class="btn-exit-showing" onclick="toggleSessionFilterMode(true)" style="background:#2563eb; color:#ffffff; font-weight:800; border:1px solid #93c5fd;">
+                  📋 담긴 집만 보기 (${count})
+                </button>
+              `}
+              <button type="button" class="btn-exit-showing" onclick="setActiveSession(null)" title="손님 선택 해제">✕ 해제</button>
+            </div>
           </div>
           ${session.memo ? `<div style="font-size:12.5px; opacity:0.95; margin-top:4px;">📝 희망조건: ${escapeHtml(session.memo)}</div>` : ''}
+          
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.25);">
-            <div style="font-size:13px; font-weight:800;">
-              보여줄 집: <b>${count}</b>곳 선택됨
+            <div style="font-size:12.5px; font-weight:700;">
+              ${isFilteringSessionOnly ? `현재 <b>담긴 집 ${count}곳</b>만 표시 중` : `<b>전체 매물</b> 둘러보는 중 (매물 카드에서 담기/빼기)`}
             </div>
             <div style="display:flex; gap:6px;">
               <button type="button" class="btn-finish-showing" onclick="finishShowingSession('${session.id}')">
-                🏁 안내 완료 및 기록 보관
+                🏁 안내 완료 및 보관
               </button>
               <button type="button" class="btn-exit-showing" style="color:#fecaca; border-color:rgba(254,202,202,0.4);" onclick="deleteShowingSession('${session.id}')">
-                손님 삭제
+                삭제
               </button>
             </div>
           </div>
@@ -1033,22 +1069,19 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     }
 
     function renderUnitShowingBasketBtn(propId) {
-      if (!activeSessionId) {
-        const activeSessions = showingSessions.filter(s => s.status === 'active');
-        if (activeSessions.length === 0) return '';
-      }
+      if (!activeSessionId) return '';
 
-      const session = activeSessionId ? showingSessions.find(s => s.id === activeSessionId) : null;
-      const isIn = session && session.propertyIds && session.propertyIds.includes(propId);
+      const session = showingSessions.find(s => s.id === activeSessionId);
+      if (!session) return '';
 
-      if (session) {
-        return `
-          <button type="button" class="showing-basket-btn ${isIn ? 'in-basket' : ''}" onclick="togglePropertyInActiveSession('${propId}')" title="${isIn ? '손님 목록에서 빼기' : '이 손님에게 보여줄 집으로 담기'}">
-            <span>${isIn ? '✔️ 담김' : '➕ 보여줄집 담기'}</span>
-          </button>
-        `;
-      }
-      return '';
+      const isIn = session.propertyIds && session.propertyIds.includes(propId);
+      const phoneShort = session.phone && session.phone.length > 4 ? session.phone.slice(-4) : session.phone;
+
+      return `
+        <button type="button" class="showing-basket-btn ${isIn ? 'in-basket' : ''}" onclick="togglePropertyInActiveSession('${propId}')" title="${isIn ? '장바구니에서 빼기' : '이 손님 장바구니에 담기'}">
+          <span>${isIn ? '✔️ 담김' : `🛒 ${phoneShort}에 담기`}</span>
+        </button>
+      `;
     }
 
     function renderUnitFeedbackInSession(propId) {
