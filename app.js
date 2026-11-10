@@ -85,53 +85,77 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       } catch(e){}
     }
 
+    /* 전화번호 포맷 헬퍼 */
+    function formatPhone(raw) {
+      if (!raw) return '';
+      const clean = String(raw).replace(/[^0-9]/g, '');
+      if (clean.length === 11) {
+        return clean.replace(/^(\d{3})(\d{4})(\d{4})$/, '$1-$2-$3');
+      } else if (clean.length === 10) {
+        if (clean.startsWith('02')) {
+          return clean.replace(/^(\d{2})(\d{4})(\d{4})$/, '$1-$2-$3');
+        } else {
+          return clean.replace(/^(\d{3})(\d{3})(\d{4})$/, '$1-$2-$3');
+        }
+      } else if (clean.length === 9 && clean.startsWith('02')) {
+        return clean.replace(/^(\d{2})(\d{3})(\d{4})$/, '$1-$2-$3');
+      } else if (clean.length === 4) {
+        return clean; // 뒷 4자리만 입력한 경우
+      }
+      return raw.trim();
+    }
+
     /* 기존 매물에 붙어있던 구버전 showings ➜ 새로운 손님 세션으로 100% 안전 자동 이전 */
     function migrateLegacyShowingsToSessions() {
-      if (!showings || showings.length === 0) return;
-      let hasMigrated = false;
+      try {
+        if (!showings || showings.length === 0) return;
+        let hasMigrated = false;
 
-      showings.forEach(s => {
-        const rawPhone = s.clientPhone || '';
-        const phone = rawPhone ? formatPhone(rawPhone) : (s.clientName || '손님');
-        
-        // 이미 동일 손님/날짜 세션이 있는지 확인
-        let existingSession = showingSessions.find(sess => 
-          (sess.phone === phone || (rawPhone && sess.phone.includes(rawPhone.slice(-4)))) &&
-          sess.date === s.date
-        );
+        showings.forEach(s => {
+          const rawPhone = s.clientPhone || '';
+          const phone = rawPhone ? formatPhone(rawPhone) : (s.clientName || '손님');
+          
+          // 이미 동일 손님/날짜 세션이 있는지 확인
+          let existingSession = showingSessions.find(sess => 
+            (sess.phone === phone || (rawPhone && sess.phone.includes(rawPhone.slice(-4)))) &&
+            sess.date === s.date
+          );
 
-        if (!existingSession) {
-          existingSession = {
-            id: 'sess-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
-            date: s.date || getTodayString(),
-            time: s.time || '14:00',
-            phone: phone,
-            clientName: s.clientName || '손님',
-            memo: s.memo || '',
-            propertyIds: [],
-            feedbackMap: {},
-            status: 'active'
-          };
-          showingSessions.push(existingSession);
-          hasMigrated = true;
-        }
-
-        if (s.propertyId && !existingSession.propertyIds.includes(s.propertyId)) {
-          existingSession.propertyIds.push(s.propertyId);
-          hasMigrated = true;
-        }
-
-        if (s.feedback && s.propertyId) {
-          if (!existingSession.feedbackMap) existingSession.feedbackMap = {};
-          if (!existingSession.feedbackMap[s.propertyId]) {
-            existingSession.feedbackMap[s.propertyId] = s.feedback;
+          if (!existingSession) {
+            existingSession = {
+              id: 'sess-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+              date: s.date || getTodayString(),
+              time: s.time || '14:00',
+              phone: phone,
+              clientName: s.clientName || '손님',
+              memo: s.memo || '',
+              propertyIds: [],
+              feedbackMap: {},
+              status: 'active'
+            };
+            showingSessions.push(existingSession);
             hasMigrated = true;
           }
-        }
-      });
 
-      if (hasMigrated) {
-        saveData(false);
+          if (s.propertyId && !existingSession.propertyIds.includes(s.propertyId)) {
+            existingSession.propertyIds.push(s.propertyId);
+            hasMigrated = true;
+          }
+
+          if (s.feedback && s.propertyId) {
+            if (!existingSession.feedbackMap) existingSession.feedbackMap = {};
+            if (!existingSession.feedbackMap[s.propertyId]) {
+              existingSession.feedbackMap[s.propertyId] = s.feedback;
+              hasMigrated = true;
+            }
+          }
+        });
+
+        if (hasMigrated) {
+          saveData(false);
+        }
+      } catch(err) {
+        console.error('Migration error:', err);
       }
     }
 
