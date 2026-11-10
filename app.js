@@ -24,6 +24,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       loadData();
       checkVaultRecoveryOnStartup();
       initDefaultDataIfEmpty();
+      migrateLegacyShowingsToSessions(); // 기존 매물 아래 쇼잉 ➜ 새 손님 세션으로 100% 자동 이전
       renderApp();
       checkInitialPinBanner();
       if (sessionStorage.getItem('unlocked') === 'true') {
@@ -82,6 +83,56 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           }));
         }
       } catch(e){}
+    }
+
+    /* 기존 매물에 붙어있던 구버전 showings ➜ 새로운 손님 세션으로 100% 안전 자동 이전 */
+    function migrateLegacyShowingsToSessions() {
+      if (!showings || showings.length === 0) return;
+      let hasMigrated = false;
+
+      showings.forEach(s => {
+        const rawPhone = s.clientPhone || '';
+        const phone = rawPhone ? formatPhone(rawPhone) : (s.clientName || '손님');
+        
+        // 이미 동일 손님/날짜 세션이 있는지 확인
+        let existingSession = showingSessions.find(sess => 
+          (sess.phone === phone || (rawPhone && sess.phone.includes(rawPhone.slice(-4)))) &&
+          sess.date === s.date
+        );
+
+        if (!existingSession) {
+          existingSession = {
+            id: 'sess-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+            date: s.date || getTodayString(),
+            time: s.time || '14:00',
+            phone: phone,
+            clientName: s.clientName || '손님',
+            memo: s.memo || '',
+            propertyIds: [],
+            feedbackMap: {},
+            status: 'active'
+          };
+          showingSessions.push(existingSession);
+          hasMigrated = true;
+        }
+
+        if (s.propertyId && !existingSession.propertyIds.includes(s.propertyId)) {
+          existingSession.propertyIds.push(s.propertyId);
+          hasMigrated = true;
+        }
+
+        if (s.feedback && s.propertyId) {
+          if (!existingSession.feedbackMap) existingSession.feedbackMap = {};
+          if (!existingSession.feedbackMap[s.propertyId]) {
+            existingSession.feedbackMap[s.propertyId] = s.feedback;
+            hasMigrated = true;
+          }
+        }
+      });
+
+      if (hasMigrated) {
+        saveData(false);
+      }
     }
 
     function pushSnapshot() {
@@ -713,10 +764,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
                 <!-- Slim Accordion Toggle Button: 기본 상태는 깔끔하게 접어두고 필요시만 펼치기 -->
                 <button type="button" class="btn-unit-toggle" id="toggleBtn_${p.id}" onclick="toggleUnitDetail('${p.id}')">
-                  <span style="display:flex; align-items:center; gap:5px;">
-                    <span>📋 상세 정보 / 손님 약속</span>
-                    ${pShows.length > 0 ? `<span style="background:#dbeafe; color:#1e40af; font-size:11px; padding:1px 6px; border-radius:10px; font-weight:800;">쇼잉 ${pShows.length}</span>` : ''}
-                  </span>
+                  <span>📋 상세 정보 & 연락처</span>
                   <span id="toggleArrow_${p.id}" style="font-size:11px; color:#64748b;">▼ 펼치기</span>
                 </button>
 
@@ -741,63 +789,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                     </div>
                   ` : ''}
 
-                  <!-- Indented Showing Tree for this Unit (일정이 있을 때만 표시!) -->
-                  ${pShows.length > 0 ? `
-                    <div class="showing-tree" style="margin-top:10px; border-radius:8px; background:#f8fafc; padding:10px 12px;">
-                      <div class="tree-header-row">
-                        <span class="tree-header-label">
-                          <span>🤝 쇼잉 약속 & 현장 브리핑</span>
-                          <span style="font-size:11px; background:#e0e7ff; color:#3730a3; padding:1px 6px; border-radius:10px;">${pShows.length}건</span>
-                        </span>
-                      </div>
-
-                      <div class="tree-branch-container">
-                        ${upcomingShows.length > 0 ? `
-                          <div class="tree-section-title title-upcoming">
-                            <span>🗓️ 예정된 쇼잉 (${upcomingShows.length})</span>
-                          </div>
-                          ${upcomingShows.map(s => `
-                            <div class="schedule-item-future">
-                              <div class="future-head">
-                                <span class="future-time">⏰ ${formatDateLabel(s.date)} ${s.time}</span>
-                                <span class="future-client">${escapeHtml(s.clientName || '손님')}</span>
-                                ${s.clientPhone ? `<a href="tel:${s.clientPhone}" class="btn-call-mini">📞 전화</a>` : ''}
-                              </div>
-                              ${s.memo ? `<div class="future-memo">📝 ${escapeHtml(s.memo)}</div>` : ''}
-                              <div class="future-actions">
-                                <button class="btn-mini-act" onclick="openFeedbackModal('${s.id}')">💬 브리핑/피드백</button>
-                                <button class="btn-mini-act" onclick="deleteShowing('${s.id}')">삭제</button>
-                              </div>
-                            </div>
-                          `).join('')}
-                        ` : ''}
-
-                        ${pastShows.length > 0 ? `
-                          <div class="tree-section-title title-past">
-                            <span>📋 지난 브리핑 기록 (${pastShows.length})</span>
-                          </div>
-                          ${pastShows.map(s => `
-                            <div class="schedule-item-past">
-                              <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span class="past-date">${s.date} ${s.time}</span>
-                                <span class="past-client">${escapeHtml(s.clientName || '손님')}</span>
-                                <button class="btn-mini-act" style="font-size:11px; padding:1px 5px;" onclick="deleteShowing('${s.id}')">✕</button>
-                              </div>
-                              ${s.feedback ? `<div class="past-feedback">💬 ${escapeHtml(s.feedback)}</div>` : (s.memo ? `<div class="past-feedback" style="color:#64748b;">📝 ${escapeHtml(s.memo)}</div>` : '')}
-                            </div>
-                          `).join('')}
-                        ` : ''}
-                      </div>
-                    </div>
-                  ` : ''}
-
-                  <!-- Unit Actions Row: [➕ 일정추가] 버튼과 수정/정리 버튼을 한 줄에 깔끔하게 배치! -->
-                  <div class="unit-actions-row">
-                    <div>
-                      <button type="button" class="btn-unit-add-showing" onclick="openAddShowingModal('${p.id}')">
-                        ➕ 일정 추가
-                      </button>
-                    </div>
+                  <!-- Unit Actions Row: 수정/정리 버튼을 깔끔하게 배치 -->
+                  <div class="unit-actions-row" style="justify-content: flex-end;">
                     <div style="display:flex; gap:6px; align-items:center;">
                       <button class="btn-mini-act" onclick="openEditPropertyModal('${p.id}')">✏️ 호수 정보/비번 수정</button>
                       ${p.isArchived ? `

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>중개노트 - 공인중개사 현장 수첩</title>
-  <link rel="stylesheet" href="style.css?v=20261110_2">
+  <link rel="stylesheet" href="style.css?v=20261110_3">
 </head>
 <body>
 
@@ -123,16 +123,16 @@
   </header>
 
   <div class="main-wrap">
-    <!-- Showing Session Tags Bar (손님 쇼잉 투어 태그 바) -->
-    <div class="showing-session-bar" id="showingSessionBar"></div>
-    <div id="showingActiveBannerContainer"></div>
-
     <!-- Quick Dong Filter & Search -->
     <div class="filter-bar" id="dongPills"></div>
     <div class="search-wrap">
       <input type="text" id="searchInput" class="search-box" placeholder="🔍 지번, 건물명, 동·호수, 전화번호 검색..." oninput="onSearchInputChanged()">
       <button type="button" id="btnSearchClear" class="btn-search-clear" onclick="clearSearchInput()" title="검색어 지우기">✕</button>
     </div>
+
+    <!-- Showing Session Tags Bar (손님 쇼잉 투어 태그 바) -->
+    <div class="showing-session-bar" id="showingSessionBar"></div>
+    <div id="showingActiveBannerContainer"></div>
 
     <!-- Sort Bar (일정 빠른순 vs 주소순) -->
     <div class="sort-bar">
@@ -665,6 +665,6 @@
 
   <div id="toast"></div>
 
-  <script src="app.js?v=20261110_2" defer></script>
+  <script src="app.js?v=20261110_3" defer></script>
 </body>
 </html>
