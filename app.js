@@ -1,12 +1,15 @@
 const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     const STORAGE_KEY_PROPERTIES = 'showing_diary_properties';
     const STORAGE_KEY_SHOWINGS = 'showing_diary_showings';
+    const STORAGE_KEY_SESSIONS = 'showing_diary_sessions';
     const STORAGE_KEY_SNAPSHOTS = 'showing_diary_snapshots';
     const MAX_FREE_PROPERTIES = 100; // 개인 무료 플랜 최대 보관 매물 한도
 
     let settings = { pin: '0000', dongs: [], baseDistrict: '' };
     let properties = [];
     let showings = [];
+    let showingSessions = []; // 손님별 쇼잉 세션 (날짜 + 전화번호 + 태그 매핑 + 피드백)
+    let activeSessionId = null; // 현재 선택된 쇼잉 세션 (쇼잉 모드)
     let currentDongFilter = 'ALL';
     let currentSortBy = 'schedule'; // 기본: 일정 빠른순!
     let enteredPin = '';
@@ -64,6 +67,20 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             status: item.status || 'pending'
           }));
         }
+        const ss = localStorage.getItem(STORAGE_KEY_SESSIONS);
+        if (ss) {
+          showingSessions = JSON.parse(ss).map(item => ({
+            id: item.id || 'sess-' + Date.now(),
+            date: item.date || getTodayString(),
+            time: item.time || '14:00',
+            phone: item.phone || '',
+            clientName: item.clientName || '',
+            memo: item.memo || '',
+            propertyIds: Array.isArray(item.propertyIds) ? item.propertyIds : [],
+            feedbackMap: item.feedbackMap || {}, // { [propId]: feedbackText }
+            status: item.status || 'active' // 'active' or 'finished'
+          }));
+        }
       } catch(e){}
     }
 
@@ -73,7 +90,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         snaps.unshift({
           timestamp: new Date().toISOString(),
           properties: properties,
-          showings: showings
+          showings: showings,
+          showingSessions: showingSessions
         });
         if (snaps.length > 5) snaps.length = 5;
         localStorage.setItem(STORAGE_KEY_SNAPSHOTS, JSON.stringify(snaps));
@@ -91,6 +109,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         const target = snaps[1]; // previous state
         properties = target.properties || [];
         showings = target.showings || [];
+        showingSessions = target.showingSessions || [];
         saveData(false);
         renderApp();
         closeModal('settingsModal');
@@ -103,6 +122,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
       localStorage.setItem(STORAGE_KEY_PROPERTIES, JSON.stringify(properties));
       localStorage.setItem(STORAGE_KEY_SHOWINGS, JSON.stringify(showings));
+      localStorage.setItem(STORAGE_KEY_SESSIONS, JSON.stringify(showingSessions));
       syncVaultToNative();
     }
 
@@ -174,7 +194,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
     async function syncVaultToNative() {
       try {
-        const payload = { settings, properties, showings, time: new Date().toISOString() };
+        const payload = { settings, properties, showings, showingSessions, time: new Date().toISOString() };
         const encStr = await encryptVault(payload, settings.pin);
         localStorage.setItem('showing_note_encrypted_vault', encStr);
         if (window.AndroidBridge && window.AndroidBridge.saveEncryptedVault) {
@@ -185,7 +205,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
     async function exportEncryptedVaultFile() {
       try {
-        const payload = { settings, properties, showings };
+        const payload = { settings, properties, showings, showingSessions };
         const encStr = await encryptVault(payload, settings.pin);
         const blob = new Blob([encStr], { type: 'application/json' });
         const a = document.createElement('a');
@@ -209,6 +229,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             settings = restored.settings || settings;
             properties = restored.properties || [];
             showings = restored.showings || [];
+            showingSessions = restored.showingSessions || [];
             saveData(false);
             renderApp();
             showToast('🎉 암호화 금고에서 데이터가 100% 복원되었습니다!');
@@ -245,6 +266,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           settings = restored.settings || settings;
           properties = restored.properties || [];
           showings = restored.showings || [];
+          showingSessions = restored.showingSessions || [];
           saveData(false);
           closeModal('vaultRecoveryModal');
           renderApp();
@@ -352,12 +374,22 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
     function renderApp() {
       renderDongPills();
+      renderShowingSessionBar();
+      renderShowingActiveBanner();
+
       const container = document.getElementById('addressCardsList');
       const searchWord = document.getElementById('searchInput').value.trim().toLowerCase();
       const today = getTodayString();
 
+      const currentSession = activeSessionId ? showingSessions.find(s => s.id === activeSessionId) : null;
+
       // Filter properties
       let list = properties.filter(p => {
+        // 만약 특정 손님 쇼잉 세션(태그)이 활성화되어 있다면, 해당 손님에게 담긴 매물만 표시!
+        if (currentSession) {
+          if (!currentSession.propertyIds.includes(p.id)) return false;
+        }
+
         if (currentDongFilter === 'ARCHIVED') {
           if (!p.isArchived) return false;
         } else {
@@ -378,6 +410,24 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       if (list.length === 0) {
         const activeCount = properties.filter(p => !p.isArchived).length;
         const countEl = document.getElementById('propCount');
+        if (currentSession) {
+          countEl.innerHTML = `👤 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님: <b>0곳 담김</b>`;
+          container.innerHTML = `
+            <div style="text-align:center; padding: 40px 16px; background:#eff6ff; border-radius:16px; border:1.5px dashed #93c5fd; margin-top:8px;">
+              <div style="font-size:36px; margin-bottom:8px;">👤</div>
+              <h3 style="font-size:16px; font-weight:800; color:#1e40af; margin-bottom:6px;">
+                [${escapeHtml(currentSession.phone)}] 손님에게 보여줄 집이 아직 없습니다
+              </h3>
+              <p style="font-size:13px; color:#475569; line-height:1.5; margin-bottom:16px;">
+                상단의 <b>[✕ 전체 매물 보기]</b>를 누른 후, 보여주고 싶은 매물 카드의 <b>[➕ 보여줄집 담기]</b> 버튼을 톡톡 눌러보세요!
+              </p>
+              <button type="button" onclick="setActiveSession(null)" style="background:#2563eb; color:white; border:none; padding:10px 18px; border-radius:8px; font-size:13.5px; font-weight:800; cursor:pointer;">
+                전체 매물 보러가기
+              </button>
+            </div>
+          `;
+          return;
+        }
         if (currentDongFilter === 'ARCHIVED') {
           countEl.innerHTML = `📦 보관된 매물: <b style="color:#64748b;">0개</b>`;
         } else {
@@ -475,7 +525,9 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       // Active properties count (excluding archived ones)
       const activeCount = properties.filter(p => !p.isArchived).length;
       const countEl = document.getElementById('propCount');
-      if (currentDongFilter === 'ARCHIVED') {
+      if (currentSession) {
+        countEl.innerHTML = `👤 <b style="color:#2563eb;">${escapeHtml(currentSession.phone)}</b> 손님 보여줄 집: <b style="color:#1d4ed8;">${list.length}곳</b>`;
+      } else if (currentDongFilter === 'ARCHIVED') {
         countEl.innerHTML = `📦 보관된 매물: <b style="color:#64748b;">${list.length}개</b>`;
       } else {
         let countColor = '#2563eb';
@@ -649,11 +701,15 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                   <div style="display:flex; align-items:center; gap:6px;">
                     <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#eff6ff; color:#1e40af; border-color:#bfdbfe;'}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)}` : '🏢 건물')}</span>
                     ${unitScheduleBadge}
+                    ${renderUnitShowingBasketBtn(p.id)}
                   </div>
                   <div class="unit-door-pw">
                     ${p.ho ? '세대 도어락' : '🔑 공동현관'}: <span>${p.ho ? (p.doorPw || '미등록') : (p.commonPw || p.doorPw || '미등록')}</span>
                   </div>
                 </div>
+
+                <!-- 쇼잉 투어 모드일 때 매물 피드백 빠른 입력창 -->
+                ${renderUnitFeedbackInSession(p.id)}
 
                 <!-- Slim Accordion Toggle Button: 기본 상태는 깔끔하게 접어두고 필요시만 펼치기 -->
                 <button type="button" class="btn-unit-toggle" id="toggleBtn_${p.id}" onclick="toggleUnitDetail('${p.id}')">
@@ -770,6 +826,342 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       });
 
       container.innerHTML = html;
+    }
+
+    /* ==========================================================================
+       SHOWING SESSION & TAG ENGINE (손님별 쇼잉 바구니 및 투어 코스 로직)
+       ========================================================================== */
+
+    function openNewShowingSessionModal() {
+      document.getElementById('sessionDate').value = getTodayString();
+      document.getElementById('sessionTime').value = '14:00';
+      document.getElementById('sessionPhone').value = '';
+      document.getElementById('sessionClientName').value = '';
+      document.getElementById('sessionMemo').value = '';
+      openModal('newShowingSessionModal');
+    }
+
+    function createNewShowingSession(e) {
+      if (e) e.preventDefault();
+      const date = document.getElementById('sessionDate').value || getTodayString();
+      const time = document.getElementById('sessionTime').value || '14:00';
+      const rawPhone = document.getElementById('sessionPhone').value.trim();
+      let clientName = document.getElementById('sessionClientName').value.trim();
+      const memo = document.getElementById('sessionMemo').value.trim();
+
+      if (!rawPhone) {
+        alert('손님 전화번호(또는 뒷4자리)를 입력해 주세요.');
+        return;
+      }
+
+      const phone = formatPhone(rawPhone);
+      if (!clientName) clientName = '손님';
+
+      const newSession = {
+        id: 'sess-' + Date.now(),
+        date: date,
+        time: time,
+        phone: phone,
+        clientName: clientName,
+        memo: memo,
+        propertyIds: [],
+        feedbackMap: {},
+        status: 'active'
+      };
+
+      showingSessions.unshift(newSession);
+      activeSessionId = newSession.id;
+      saveData();
+      closeModal('newShowingSessionModal');
+      renderApp();
+      showToast(`🏷️ [${phone} 손님] 쇼잉이 생성되었습니다! 보여줄 매물의 [+담기]를 누르세요.`);
+    }
+
+    function setActiveSession(sessionId) {
+      activeSessionId = sessionId;
+      renderApp();
+    }
+
+    function renderShowingSessionBar() {
+      const barEl = document.getElementById('showingSessionBar');
+      if (!barEl) return;
+
+      const activeSessions = showingSessions.filter(s => s.status === 'active');
+
+      let html = `
+        <button type="button" class="btn-new-showing-tag" onclick="openNewShowingSessionModal()" title="새로운 손님 등록 (보여줄 집 묶음)">
+          <span>👤➕</span>
+          <span>손님 등록</span>
+        </button>
+      `;
+
+      if (activeSessions.length > 0) {
+        // 전체 매물 칩 (손님 선택 해제)
+        html += `
+          <button type="button" class="showing-tag-chip ${activeSessionId === null ? 'active' : ''}" onclick="setActiveSession(null)">
+            <span>🏠 전체 매물</span>
+          </button>
+        `;
+
+        activeSessions.forEach(s => {
+          const isCurrent = (s.id === activeSessionId);
+          const dateShort = s.date ? s.date.slice(5).replace('-', '/') : '';
+          const phoneShort = s.phone.length > 4 ? s.phone.slice(-4) : s.phone;
+          const label = `${dateShort} ${phoneShort}${s.clientName && s.clientName !== '손님' ? ` (${escapeHtml(s.clientName)})` : ''}`;
+          const count = s.propertyIds ? s.propertyIds.length : 0;
+
+          html += `
+            <button type="button" class="showing-tag-chip ${isCurrent ? 'active' : ''}" onclick="setActiveSession('${s.id}')" title="${s.date} ${s.phone}">
+              <span>👤 ${label}</span>
+              <span class="badge-count">${count}곳</span>
+            </button>
+          `;
+        });
+      }
+
+      barEl.innerHTML = html;
+    }
+
+    function renderShowingActiveBanner() {
+      const container = document.getElementById('showingActiveBannerContainer');
+      if (!container) return;
+
+      if (!activeSessionId) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const session = showingSessions.find(s => s.id === activeSessionId);
+      if (!session) {
+        activeSessionId = null;
+        container.innerHTML = '';
+        return;
+      }
+
+      const count = session.propertyIds ? session.propertyIds.length : 0;
+
+      container.innerHTML = `
+        <div class="showing-active-banner">
+          <div class="showing-active-banner-top">
+            <div class="showing-active-banner-title">
+              <span>👤</span>
+              <span>${session.date} (${session.time}) - <b>${escapeHtml(session.phone)}</b> 손님 (${escapeHtml(session.clientName || '손님')})</span>
+            </div>
+            <button type="button" class="btn-exit-showing" onclick="setActiveSession(null)">✕ 전체 매물 보기</button>
+          </div>
+          ${session.memo ? `<div style="font-size:12.5px; opacity:0.95; margin-top:4px;">📝 희망조건: ${escapeHtml(session.memo)}</div>` : ''}
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.25);">
+            <div style="font-size:13px; font-weight:800;">
+              보여줄 집: <b>${count}</b>곳 선택됨
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn-finish-showing" onclick="finishShowingSession('${session.id}')">
+                🏁 안내 완료 및 기록 보관
+              </button>
+              <button type="button" class="btn-exit-showing" style="color:#fecaca; border-color:rgba(254,202,202,0.4);" onclick="deleteShowingSession('${session.id}')">
+                손님 삭제
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function togglePropertyInActiveSession(propId) {
+      if (!activeSessionId) {
+        // 활성화된 세션이 없을 경우, 가장 최근 활성 세션이 있는지 확인하거나 새로 만들도록 유도
+        const activeSessions = showingSessions.filter(s => s.status === 'active');
+        if (activeSessions.length === 1) {
+          activeSessionId = activeSessions[0].id;
+        } else if (activeSessions.length > 1) {
+          alert('상단에서 집을 보여줄 [손님]을 먼저 선택해 주세요!');
+          return;
+        } else {
+          if (confirm('아직 등록된 손님이 없습니다.\n새 손님을 먼저 등록하시겠습니까?')) {
+            openNewShowingSessionModal();
+          }
+          return;
+        }
+      }
+
+      const session = showingSessions.find(s => s.id === activeSessionId);
+      if (!session) return;
+
+      if (!session.propertyIds) session.propertyIds = [];
+      const idx = session.propertyIds.indexOf(propId);
+
+      if (idx > -1) {
+        session.propertyIds.splice(idx, 1);
+        if (session.feedbackMap && session.feedbackMap[propId]) {
+          delete session.feedbackMap[propId];
+        }
+        showToast(`[${session.phone}] 손님 목록에서 매물을 뺐습니다.`);
+      } else {
+        session.propertyIds.push(propId);
+        showToast(`[${session.phone}] 손님에게 보여줄 집으로 담았습니다! (총 ${session.propertyIds.length}곳)`);
+      }
+
+      saveData();
+      renderApp();
+    }
+
+    function renderUnitShowingBasketBtn(propId) {
+      if (!activeSessionId) {
+        const activeSessions = showingSessions.filter(s => s.status === 'active');
+        if (activeSessions.length === 0) return '';
+      }
+
+      const session = activeSessionId ? showingSessions.find(s => s.id === activeSessionId) : null;
+      const isIn = session && session.propertyIds && session.propertyIds.includes(propId);
+
+      if (session) {
+        return `
+          <button type="button" class="showing-basket-btn ${isIn ? 'in-basket' : ''}" onclick="togglePropertyInActiveSession('${propId}')" title="${isIn ? '손님 목록에서 빼기' : '이 손님에게 보여줄 집으로 담기'}">
+            <span>${isIn ? '✔️ 담김' : '➕ 보여줄집 담기'}</span>
+          </button>
+        `;
+      }
+      return '';
+    }
+
+    function renderUnitFeedbackInSession(propId) {
+      if (!activeSessionId) return '';
+      const session = showingSessions.find(s => s.id === activeSessionId);
+      if (!session || !session.propertyIds.includes(propId)) return '';
+
+      const feedback = (session.feedbackMap && session.feedbackMap[propId]) || '';
+
+      return `
+        <div class="showing-feedback-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; font-weight:800; color:#1d4ed8;">💬 [${escapeHtml(session.phone)}] 손님 현장 반응/메모:</span>
+            <button type="button" onclick="togglePropertyInActiveSession('${propId}')" style="background:none; border:none; color:#ef4444; font-size:11px; font-weight:800; cursor:pointer;">✕ 이 집 빼기</button>
+          </div>
+          <input type="text" class="showing-feedback-input" placeholder="예: 햇빛 잘 든다고 흡족해함, 보증금 500 조율 시 계약 의사 있음" value="${escapeHtml(feedback)}" oninput="updateSessionFeedback('${session.id}', '${propId}', this.value)">
+        </div>
+      `;
+    }
+
+    function updateSessionFeedback(sessionId, propId, text) {
+      const session = showingSessions.find(s => s.id === sessionId);
+      if (!session) return;
+      if (!session.feedbackMap) session.feedbackMap = {};
+      session.feedbackMap[propId] = text;
+      saveData(false); // 입력 중 매 타이핑마다 스냅샷은 안 만들고 데이터만 가볍게 저장
+    }
+
+    function finishShowingSession(sessionId) {
+      const session = showingSessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      const propCount = session.propertyIds ? session.propertyIds.length : 0;
+      if (!confirm(`[${session.phone} 손님]의 집 안내를 완료 처리하시겠습니까?\n\n• 매물 목록에서 손님 선택이 해제됩니다.\n• 상담 내용과 현장 반응 메모는 기록 보관함에 안전하게 보관됩니다.`)) {
+        return;
+      }
+
+      session.status = 'finished';
+      session.finishedAt = new Date().toISOString();
+      activeSessionId = null;
+      saveData();
+      renderApp();
+      showToast(`🏁 [${session.phone} 손님] (${propCount}곳) 안내가 완료되어 안전하게 보관되었습니다!`);
+    }
+
+    function deleteShowingSession(sessionId) {
+      const session = showingSessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      if (!confirm(`[${session.phone} 손님]을 정말 삭제하시겠습니까? (매물 원본은 전혀 삭제되지 않습니다)`)) {
+        return;
+      }
+
+      showingSessions = showingSessions.filter(s => s.id !== sessionId);
+      if (activeSessionId === sessionId) activeSessionId = null;
+      saveData();
+      renderApp();
+      showToast('손님이 목록에서 삭제되었습니다.');
+    }
+      const session = showingSessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      if (!confirm(`[${session.phone} 손님] 쇼잉 태그를 정말 삭제하시겠습니까? (매물 원본은 전혀 삭제되지 않습니다)`)) {
+        return;
+      }
+
+      showingSessions = showingSessions.filter(s => s.id !== sessionId);
+      if (activeSessionId === sessionId) activeSessionId = null;
+      saveData();
+      renderApp();
+      showToast('쇼잉 태그가 삭제되었습니다.');
+    }
+
+    /* Modal: 지난 쇼잉 투어 히스토리 보관함 렌더링 */
+    function openSessionHistoryModal() {
+      const container = document.getElementById('sessionHistoryList');
+      if (!container) return;
+
+      const finishedSessions = showingSessions.filter(s => s.status === 'finished');
+
+      if (finishedSessions.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:30px 10px; color:#64748b;">
+            <div style="font-size:32px; margin-bottom:6px;">🗂️</div>
+            <div style="font-size:14px; font-weight:800; color:#334155;">완료된 쇼잉 기록이 아직 없습니다</div>
+            <div style="font-size:12px; margin-top:4px;">쇼잉 투어가 끝나고 [쇼잉 투어 완료 및 보관]을 누르면 여기에 안전하게 보관됩니다.</div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = finishedSessions.map(s => {
+          const matchedProps = properties.filter(p => s.propertyIds && s.propertyIds.includes(p.id));
+          return `
+            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:12px 14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:14px; font-weight:800; color:#1e40af;">
+                  🏷️ ${s.date} - <b>${escapeHtml(s.phone)}</b> 손님 (${escapeHtml(s.clientName || '손님')})
+                </span>
+                <span style="font-size:11.5px; color:#64748b; background:#e2e8f0; padding:2px 7px; border-radius:10px;">
+                  매물 ${matchedProps.length}곳
+                </span>
+              </div>
+              ${s.memo ? `<div style="font-size:12px; color:#475569; margin-bottom:8px;">💡 메모: ${escapeHtml(s.memo)}</div>` : ''}
+              
+              <div style="display:flex; flex-direction:column; gap:6px; margin-top:6px; border-top:1px dashed #cbd5e1; padding-top:6px;">
+                ${matchedProps.length === 0 ? `<div style="font-size:12px; color:#94a3b8;">(연결된 매물이 삭제되었거나 없음)</div>` : matchedProps.map(p => {
+                  const fb = (s.feedbackMap && s.feedbackMap[p.id]) || '피드백 없음';
+                  return `
+                    <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px; font-size:12px;">
+                      <div style="font-weight:800; color:#1e293b;">
+                        📍 ${p.dong} ${p.jibun} ${p.bDong && p.bDong !== '0' ? p.bDong + ' ' : ''}${p.ho ? p.ho : ''} ${p.building ? '('+escapeHtml(p.building)+')' : ''}
+                      </div>
+                      <div style="color:#2563eb; margin-top:2px;">
+                        💬 손님 반응: <span style="color:#334155;">${escapeHtml(fb)}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:8px;">
+                <button type="button" class="btn-mini-act" style="color:#2563eb; border-color:#93c5fd;" onclick="reopenSession('${s.id}')">🔄 다시 쇼잉으로 살리기</button>
+                <button type="button" class="btn-mini-act" style="color:#ef4444; border-color:#fca5a5;" onclick="deleteShowingSession('${s.id}'); openSessionHistoryModal();">삭제</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      openModal('sessionHistoryModal');
+    }
+
+    function reopenSession(sessionId) {
+      const session = showingSessions.find(s => s.id === sessionId);
+      if (!session) return;
+      session.status = 'active';
+      activeSessionId = session.id;
+      saveData();
+      closeModal('sessionHistoryModal');
+      renderApp();
+      showToast(`🔄 [${session.phone} 손님] 쇼잉이 다시 활성화되었습니다!`);
     }
 
     /* Unit Detail Accordion Toggle Function */

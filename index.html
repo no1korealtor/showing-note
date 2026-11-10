@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>중개노트 - 공인중개사 현장 수첩</title>
-  <link rel="stylesheet" href="style.css?v=20261109_6">
+  <link rel="stylesheet" href="style.css?v=20261110_1">
 </head>
 <body>
 
@@ -123,6 +123,10 @@
   </header>
 
   <div class="main-wrap">
+    <!-- Showing Session Tags Bar (손님 쇼잉 투어 태그 바) -->
+    <div class="showing-session-bar" id="showingSessionBar"></div>
+    <div id="showingActiveBannerContainer"></div>
+
     <!-- Quick Dong Filter & Search -->
     <div class="filter-bar" id="dongPills"></div>
     <div class="search-wrap">
@@ -308,6 +312,49 @@
     </div>
   </div>
 
+  <!-- Modal: 새 손님 등록 (보여줄 집 묶음) -->
+  <div class="modal-overlay" id="newShowingSessionModal">
+    <div class="modal-sheet" style="max-width: 440px; margin: auto; border-radius: 16px;">
+      <div class="modal-title">
+        <span>👤 새 손님 등록 (보여줄 집 묶기)</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('newShowingSessionModal')">✕</span>
+      </div>
+      <form onsubmit="createNewShowingSession(event)">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">방문 / 약속 날짜 <span style="color:red">*</span></label>
+            <input type="date" id="sessionDate" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">약속 시간</label>
+            <input type="time" id="sessionTime" class="form-input" value="14:00">
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">손님 전화번호 (뒷4자리 or 전체) <span style="color:red">*</span></label>
+            <input type="tel" id="sessionPhone" class="form-input" placeholder="예: 5678 또는 010-1234-5678" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">손님 구분 / 성함 (선택)</label>
+            <input type="text" id="sessionClientName" class="form-input" placeholder="예: 직방, 신혼부부, 김사장">
+          </div>
+        </div>
+        <div class="chips" style="margin-bottom: 8px;">
+          <button type="button" class="chip" onclick="document.getElementById('sessionClientName').value='직방'">직방</button>
+          <button type="button" class="chip" onclick="document.getElementById('sessionClientName').value='네이버'">네이버</button>
+          <button type="button" class="chip" onclick="document.getElementById('sessionClientName').value='신혼부부'">신혼부부</button>
+          <button type="button" class="chip" onclick="document.getElementById('sessionClientName').value='청년/버팀목'">청년/버팀목</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label">💡 손님 희망조건 / 메모 (선택)</label>
+          <input type="text" id="sessionMemo" class="form-input" placeholder="예: 전세 3억 이하, 주차 1대 필수, 12월 말 입주">
+        </div>
+        <button type="submit" class="btn-submit" style="margin-top: 10px;">👤 손님 등록 및 보여줄 집 담기</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Modal: 쇼잉 완료 결과 메모 -->
   <div class="modal-overlay" id="feedbackModal">
     <div class="modal-sheet">
@@ -321,6 +368,17 @@
         <textarea id="feedbackText" class="form-textarea" rows="4" placeholder="예: 방 채광은 좋아함. 보증금 1천만 깎아주면 계약하겠다고 함. 주말 재방문 예정"></textarea>
       </div>
       <button class="btn-submit" onclick="saveFeedback()">기록 저장</button>
+    </div>
+  </div>
+
+  <!-- Modal: 지난 손님 안내/방문 기록 보관함 -->
+  <div class="modal-overlay" id="sessionHistoryModal">
+    <div class="modal-sheet" style="max-height: 85vh; overflow-y: auto;">
+      <div class="modal-title">
+        <span>🗂️ 지난 손님 안내/방문 기록</span>
+        <span style="cursor: pointer; color: #64748b;" onclick="closeModal('sessionHistoryModal')">✕</span>
+      </div>
+      <div id="sessionHistoryList" style="display:flex; flex-direction:column; gap:10px; margin-top:8px;"></div>
     </div>
   </div>
 
@@ -403,6 +461,21 @@
         <button class="btn-top" style="flex:1;" onclick="exportData()">💾 일반 JSON 백업</button>
         <button class="btn-top" style="flex:1;" onclick="document.getElementById('importFile').click()">📂 복원</button>
         <input type="file" id="importFile" style="display:none;" accept=".json" onchange="importData(event)">
+      </div>
+
+      <!-- 지난 손님 안내/방문 기록 바로가기 -->
+      <div style="margin-top: 14px; background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px 14px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <span style="font-size: 13.5px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 5px;">
+            🗂️ 지난 손님 안내/방문 기록 보관함
+          </span>
+          <button type="button" class="btn-top" onclick="openSessionHistoryModal()" style="font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-color: #3b82f6; color: #1d4ed8; background: #eff6ff;">
+            기록 열기 →
+          </button>
+        </div>
+        <p style="font-size: 12px; color: #64748b; line-height: 1.45; margin: 0;">
+          완료된 손님별 보여준 집 목록과 현장 피드백 메모를 날짜/전화번호로 찾아볼 수 있습니다.
+        </p>
       </div>
 
       <!-- 공식 매뉴얼 & 버전 업데이트 안내 링크 -->
@@ -592,6 +665,6 @@
 
   <div id="toast"></div>
 
-  <script src="app.js?v=20261109_6" defer></script>
+  <script src="app.js?v=20261110_1" defer></script>
 </body>
 </html>
