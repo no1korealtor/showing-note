@@ -160,18 +160,18 @@
       transform: scale(0.96);
     }
 
-    /* 손님 활성화 상태 배너 */
+    /* 손님 활성화 상태 배너 (슬림 2단 정렬 레이아웃) */
     .showing-active-banner {
       background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
       color: #ffffff;
       border-radius: 12px;
-      padding: 13px 15px;
+      padding: 12px 14px;
       margin-bottom: 12px;
       box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
     }
     .showing-active-banner-top {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       justify-content: space-between;
       gap: 8px;
     }
@@ -181,27 +181,53 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      letter-spacing: -0.2px;
     }
-    .btn-exit-showing {
-      background: rgba(255, 255, 255, 0.18);
-      color: #ffffff;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      font-size: 12px;
+    .showing-active-banner-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .btn-banner-action {
+      height: 36px;
+      padding: 0 4px;
+      border-radius: 8px;
+      font-size: 12.5px;
       font-weight: 800;
-      padding: 4px 9px;
-      border-radius: 6px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transition: all 0.12s ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
-    .btn-finish-showing {
+    .btn-banner-action:active {
+      transform: scale(0.96);
+    }
+    .btn-banner-action.mode-toggle {
+      background: #ffffff;
+      color: #1d4ed8;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    }
+    .btn-banner-action.finish {
       background: #10b981;
       color: #ffffff;
-      border: none;
-      font-size: 12.5px;
-      font-weight: 900;
-      padding: 7px 13px;
-      border-radius: 7px;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+      border: 1px solid #059669;
+      box-shadow: 0 2px 5px rgba(16, 185, 129, 0.25);
+    }
+    .btn-banner-action.close-view {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+    .btn-banner-action.delete-sess {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.4);
     }
 
     /* 확실한 터치형 장바구니 버튼 (입체감 있는 버튼 디자인) */

@@ -990,41 +990,43 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       }
 
       const count = session.propertyIds ? session.propertyIds.length : 0;
+      const phoneShort = session.phone && session.phone.length > 4 ? session.phone.slice(-4) : session.phone;
+      const statusText = isFilteringSessionOnly ? '담긴 집만 보는 중' : '전체 둘러보는 중';
 
       container.innerHTML = `
         <div class="showing-active-banner">
+          <!-- 1층: 시원하고 큼직한 손님 정보 & 상태 요약 -->
           <div class="showing-active-banner-top">
             <div class="showing-active-banner-title">
               <span>🛒</span>
-              <span><b>${escapeHtml(session.phone)}</b> 손님 장바구니 (${count}곳 담김)</span>
+              <span><b>${escapeHtml(phoneShort)}</b> 손님 장바구니 <span style="font-size:14px; opacity:0.9; font-weight:700;">(${count}곳 담김)</span></span>
             </div>
-            <div style="display:flex; gap:6px;">
-              ${isFilteringSessionOnly ? `
-                <button type="button" class="btn-exit-showing" onclick="toggleSessionFilterMode(false)" style="background:#ffffff; color:#1d4ed8; font-weight:800; border:none;">
-                  ➕ 전체 보며 담기
-                </button>
-              ` : `
-                <button type="button" class="btn-exit-showing" onclick="toggleSessionFilterMode(true)" style="background:#2563eb; color:#ffffff; font-weight:800; border:1px solid #93c5fd;">
-                  📋 담긴 집만 보기 (${count})
-                </button>
-              `}
-              <button type="button" class="btn-exit-showing" onclick="setActiveSession(null)" title="손님 선택 해제">✕ 해제</button>
+            <div style="font-size:11.5px; opacity:0.85; font-weight:700;">
+              ${statusText}
             </div>
           </div>
-          ${session.memo ? `<div style="font-size:12.5px; opacity:0.95; margin-top:4px;">📝 희망조건: ${escapeHtml(session.memo)}</div>` : ''}
-          
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.25);">
-            <div style="font-size:12.5px; font-weight:700;">
-              ${isFilteringSessionOnly ? `현재 <b>담긴 집 ${count}곳</b>만 표시 중` : `<b>전체 매물</b> 둘러보는 중 (매물 카드에서 담기/빼기)`}
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button type="button" class="btn-finish-showing" onclick="finishShowingSession('${session.id}')">
-                🏁 안내 완료 및 보관
+          ${session.memo ? `<div style="font-size:12px; opacity:0.95; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">📝 ${escapeHtml(session.memo)}</div>` : ''}
+
+          <!-- 2층: 대표님이 제안해주신 직관적인 4버튼 가로 정렬 바 -->
+          <div class="showing-active-banner-actions">
+            ${isFilteringSessionOnly ? `
+              <button type="button" class="btn-banner-action mode-toggle" onclick="toggleSessionFilterMode(false)" title="전체 매물 둘러보며 장바구니에 담기">
+                ➕ 매물담기
               </button>
-              <button type="button" class="btn-exit-showing" style="color:#fecaca; border-color:rgba(254,202,202,0.4);" onclick="deleteShowingSession('${session.id}')">
-                삭제
+            ` : `
+              <button type="button" class="btn-banner-action mode-toggle" onclick="toggleSessionFilterMode(true)" title="이 손님에게 담긴 집만 보기">
+                📋 담긴집만
               </button>
-            </div>
+            `}
+            <button type="button" class="btn-banner-action finish" onclick="finishShowingSession('${session.id}')" title="안내 완료 후 보관함으로 이동">
+              🏁 완료·보관
+            </button>
+            <button type="button" class="btn-banner-action close-view" onclick="setActiveSession(null)" title="손님 배너 닫고 전체 매물 보기">
+              ✕ 닫기
+            </button>
+            <button type="button" class="btn-banner-action delete-sess" onclick="deleteShowingSession('${session.id}')" title="이 손님 장바구니 영구 삭제">
+              🗑️ 삭제
+            </button>
           </div>
         </div>
       `;
