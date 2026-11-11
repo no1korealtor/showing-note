@@ -12,7 +12,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
     let activeSessionId = null; // 현재 선택된 쇼잉 세션 (장바구니 모드)
     let isFilteringSessionOnly = false; // true: 손님에게 담긴 집만 보기, false: 전체 매물 보면서 장바구니에 담기
     let currentDongFilter = 'ALL';
-    let currentSortBy = 'schedule'; // 기본: 일정 빠른순!
+    let currentSortBy = 'address'; // 기본: 깔끔한 주소순!
     let enteredPin = '';
 
     function setSortBy(mode) {
@@ -595,9 +595,6 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         return;
       }
 
-      // Sort Bar UI Update
-      document.getElementById('sortScheduleBtn').classList.toggle('active', currentSortBy === 'schedule');
-      document.getElementById('sortAddrBtn').classList.toggle('active', currentSortBy === 'address');
       // Active properties count (excluding archived ones)
       const activeCount = properties.filter(p => !p.isArchived).length;
       const countEl = document.getElementById('propCount');

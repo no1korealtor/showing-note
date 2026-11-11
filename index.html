@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>중개노트 - 공인중개사 현장 수첩</title>
-  <link rel="stylesheet" href="style.css?v=20261111_3">
+  <link rel="stylesheet" href="style.css?v=20261111_4">
 </head>
 <body>
 
@@ -136,13 +136,9 @@
     <div class="showing-session-bar" id="showingSessionBar"></div>
     <div id="showingActiveBannerContainer"></div>
 
-    <!-- Sort Bar (일정 빠른순 vs 주소순) -->
+    <!-- Count Bar (보관함 매물 수 표시) -->
     <div class="sort-bar">
-      <span style="font-size:12.5px; font-weight:700; color:#64748b;" id="propCount">총 0개 집</span>
-      <div style="display:flex; gap:6px;">
-        <button class="btn-sort active" id="sortScheduleBtn" onclick="setSortBy('schedule')">⏰ 일정 빠른순</button>
-        <button class="btn-sort" id="sortAddrBtn" onclick="setSortBy('address')">📍 주소순</button>
-      </div>
+      <span style="font-size:13px; font-weight:700; color:#64748b;" id="propCount">총 0개 집</span>
     </div>
 
     <!-- Address-Centric Cards List -->
@@ -667,6 +663,6 @@
 
   <div id="toast"></div>
 
-  <script src="app.js?v=20261111_3" defer></script>
+  <script src="app.js?v=20261111_4" defer></script>
 </body>
 </html>
