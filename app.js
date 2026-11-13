@@ -83,7 +83,45 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             status: item.status || 'active' // 'active' or 'finished'
           }));
         }
+
+        // [자동 정리 마이그레이션] 사용자가 직접 입력하지 않고 구버전 기본 샘플(성산동/중동)만 남아있는 경우 초기화
+        cleanLegacyDefaultSampleData();
       } catch(e){}
+    }
+
+    function cleanLegacyDefaultSampleData() {
+      // 1. 매물이 오직 구버전 기본 샘플(prop-1, prop-2 또는 성산동 234-12, 중동 65-4)만 있는 경우
+      const isOnlySampleProperties = properties.length > 0 && properties.every(p => 
+        (p.id === 'prop-1' || p.id === 'prop-2') ||
+        (p.dong === '성산동' && p.jibun === '234-12' && p.building === '성산아트빌') ||
+        (p.dong === '중동' && p.jibun === '65-4' && p.building === '대우베스트')
+      );
+
+      // 매물이 아예 없거나, 오직 기본 샘플만 있는 상태일 때
+      if (properties.length === 0 || isOnlySampleProperties) {
+        // 동네 설정이 구버전 기본값(['성산동', '중동'])으로만 되어 있는 경우
+        const hasOnlyDefaultDongs = Array.isArray(settings.dongs) && 
+          settings.dongs.length > 0 && 
+          settings.dongs.every(d => d === '성산동' || d === '중동');
+
+        if (isOnlySampleProperties) {
+          properties = [];
+          showings = [];
+          showingSessions = [];
+        }
+
+        if (hasOnlyDefaultDongs) {
+          settings.dongs = [];
+          if (settings.baseDistrict === '서울특별시 마포구') {
+            settings.baseDistrict = '';
+          }
+        }
+
+        // 변경사항이 발생했으면 저장하여 브라우저 로컬스토리지 잔존 데이터 완전 정리
+        if (isOnlySampleProperties || hasOnlyDefaultDongs) {
+          saveData(false);
+        }
+      }
     }
 
     /* 전화번호 포맷 헬퍼 */
