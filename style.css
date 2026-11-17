@@ -324,8 +324,10 @@
     .modal-overlay.open { display: flex; }
     .modal-sheet {
       background: white; width: 100%; max-width: 600px;
-      border-radius: 16px 16px 0 0; padding: 18px 20px 24px;
+      border-radius: 16px 16px 0 0; 
+      padding: 18px 20px calc(36px + env(safe-area-inset-bottom, 20px));
       max-height: 90vh; overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: 0 -4px 16px rgba(0,0,0,0.2);
     }
     .modal-title { font-size: 17px; font-weight: 800; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid var(--border); padding-bottom: 10px; }
@@ -339,7 +341,7 @@
     .form-row-2 > div { flex: 1; }
     .btn-submit {
       width: 100%; background: var(--primary); color: white; border: none; border-radius: 10px;
-      padding: 13px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 10px;
+      padding: 13px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 14px; margin-bottom: 8px;
     }
 
     /* Chips inside modal */
