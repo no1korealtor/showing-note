@@ -53,7 +53,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             tenantName: item.tenantName || '',
             tenantPhone: item.tenantPhone || '',
             propMemo: item.propMemo || '',
-            needsSettlement: item.needsSettlement === true
+            isPinned: item.isPinned === true || item.needsSettlement === true
           }));
         }
         const sh = localStorage.getItem(STORAGE_KEY_SHOWINGS);
@@ -688,10 +688,10 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       }
 
       // Sort Complex List
-      // 0순위: 공과금 정산 대상(needsSettlement)이 있는 단지 최상단 우선 정렬!
+      // 0순위: 상단 고정 매물(isPinned / needsSettlement)이 있는 단지 최상단 우선 정렬!
       complexList.sort((a, b) => {
-        const aHasSettlement = a.props.some(p => p.needsSettlement);
-        const bHasSettlement = b.props.some(p => p.needsSettlement);
+        const aHasSettlement = a.props.some(p => p.isPinned || p.needsSettlement);
+        const bHasSettlement = b.props.some(p => p.isPinned || p.needsSettlement);
         if (aHasSettlement && !bHasSettlement) return -1;
         if (!aHasSettlement && bHasSettlement) return 1;
 
@@ -749,12 +749,12 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           </span>
         ` : '';
 
-        // 공과금 정산 대상 호수 목록 체크
-        const settlementUnits = complex.props.filter(p => p.needsSettlement);
+        // 상단 고정 대상 호수 목록 체크
+        const settlementUnits = complex.props.filter(p => p.isPinned || p.needsSettlement);
         const hasSettlement = settlementUnits.length > 0;
         const settlementSummaryBadge = hasSettlement ? `
           <div style="margin-top:6px; display:inline-flex; align-items:center; flex-wrap:wrap; gap:6px; background:#ede9fe; border:1px solid #c4b5fd; padding:4px 10px; border-radius:8px;">
-            <span style="font-size:12px; font-weight:800; color:#5b21b6;">⚡ 공과금 정산 대상:</span>
+            <span style="font-size:12px; font-weight:800; color:#5b21b6;">📌 상단 고정:</span>
             ${settlementUnits.map(su => `
               <button type="button" onclick="focusAndHighlightUnit('${su.id}')" style="background:#ffffff; border:1px solid #a78bfa; color:#6d28d9; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:5px; cursor:pointer;">
                 👉 ${su.bDong && su.bDong !== '0' ? su.bDong + ' ' : ''}${su.ho || '호수미입력'} 바로가기
@@ -790,7 +790,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             <div class="complex-header">
               <div class="complex-top-row">
                 <div class="complex-addr-title">
-                  <span class="star-bullet" style="${hasSettlement ? 'color:#6366f1;' : ''}">${hasSettlement ? '⚡' : '★'}</span>
+                  <span class="star-bullet" style="${hasSettlement ? 'color:#6366f1;' : ''}">${hasSettlement ? '📌' : '★'}</span>
                   <a href="${naverUrl}" target="_blank" class="complex-addr-link" title="터치하면 네이버 지도로 열립니다">
                     <span class="addr-dong-badge" style="${hasSettlement ? 'background:#4f46e5;' : ''}">${complex.dong}</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8;">${complex.jibun}</span>
@@ -860,14 +860,14 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
               </span>
             ` : '';
 
-            const isSettlement = (p.needsSettlement === true);
+            const isSettlement = (p.isPinned === true || p.needsSettlement === true);
             const settlementBadge = isSettlement ? `
-              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 공과금 정산 완료 처리" style="display:inline-flex; align-items:center; gap:4px; background:#4f46e5; color:#ffffff; border:1px solid #4338ca; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px; cursor:pointer; box-shadow:0 2px 5px rgba(79,70,229,0.25);">
-                ⚡ 정산중 (완료하기✓)
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 상단 고정 해제" style="display:inline-flex; align-items:center; gap:4px; background:#4f46e5; color:#ffffff; border:1px solid #4338ca; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px; cursor:pointer; box-shadow:0 2px 5px rgba(79,70,229,0.25);">
+                📌 고정됨 (해제✓)
               </button>
             ` : `
-              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="공과금 정산 대상으로 설정" style="display:inline-flex; align-items:center; gap:3px; background:#f5f3ff; color:#5b21b6; border:1px solid #ddd6fe; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; cursor:pointer;">
-                ⚡ 공과금 정산
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="목록 최상단에 고정" style="display:inline-flex; align-items:center; gap:3px; background:#f5f3ff; color:#5b21b6; border:1px solid #ddd6fe; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; cursor:pointer;">
+                📌 상단 고정
               </button>
             `;
 
@@ -1310,17 +1310,19 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       showToast(`🔄 [${session.phone} 손님]이 다시 활성화되었습니다!`);
     }
 
-    /* 공과금 정산 토글 및 포커스 이동 기능 */
+    /* 상단 고정 토글 및 포커스 이동 기능 */
     function toggleSettlementStatus(propId, targetStatus) {
       const p = properties.find(item => item.id === propId);
       if (!p) return;
-      p.needsSettlement = (targetStatus !== undefined) ? targetStatus : !p.needsSettlement;
+      const willPin = (targetStatus !== undefined) ? targetStatus : !(p.isPinned || p.needsSettlement);
+      p.isPinned = willPin;
+      p.needsSettlement = willPin; // 하위 호환성 유지
       saveData();
       renderApp();
-      if (p.needsSettlement) {
-        showToast(`⚡ [${p.ho || '해당 물건'}] 공과금 정산이 1순위로 등록되었습니다!`);
+      if (willPin) {
+        showToast(`📌 [${p.ho || '해당 물건'}] 목록 최상단에 고정되었습니다!`);
       } else {
-        showToast(`✅ [${p.ho || '해당 물건'}] 공과금 정산이 완료되었습니다.`);
+        showToast(`✅ [${p.ho || '해당 물건'}] 상단 고정이 해제되었습니다.`);
       }
     }
 
@@ -1542,7 +1544,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       document.getElementById('formTenantName').value = p.tenantName || '';
       document.getElementById('formTenantPhone').value = p.tenantPhone || '';
       document.getElementById('formPropMemo').value = p.propMemo || '';
-      document.getElementById('formNeedsSettlement').checked = (p.needsSettlement === true);
+      document.getElementById('formNeedsSettlement').checked = (p.isPinned === true || p.needsSettlement === true);
 
       updatePasswordFieldsVisibility();
       openModal('propModal');
@@ -1619,6 +1621,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           p.tenantName = tenantName;
           p.tenantPhone = tenantPhone;
           p.propMemo = propMemo;
+          p.isPinned = needsSettlement;
           p.needsSettlement = needsSettlement;
 
           // 만약 공동현관 비번이나 건물명을 수정했다면, 같은 지번+동의 다른 호수들에도 동기화 제안/적용
@@ -1641,7 +1644,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       // 신규 물건지 등록
       const newProp = {
         id: 'prop-' + Date.now(),
-        dong, jibun, bDong, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo, needsSettlement
+        dong, jibun, bDong, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo, isPinned: needsSettlement, needsSettlement
       };
       
       // 같은 지번+동의 다른 호수들이 있으면 공동비번/건물명 자동 동기화
