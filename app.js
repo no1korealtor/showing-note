@@ -52,7 +52,8 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             ownerPhone: item.ownerPhone || '',
             tenantName: item.tenantName || '',
             tenantPhone: item.tenantPhone || '',
-            propMemo: item.propMemo || ''
+            propMemo: item.propMemo || '',
+            needsSettlement: item.needsSettlement === true
           }));
         }
         const sh = localStorage.getItem(STORAGE_KEY_SHOWINGS);
@@ -687,7 +688,13 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       }
 
       // Sort Complex List
+      // 0순위: 공과금 정산 대상(needsSettlement)이 있는 단지 최상단 우선 정렬!
       complexList.sort((a, b) => {
+        const aHasSettlement = a.props.some(p => p.needsSettlement);
+        const bHasSettlement = b.props.some(p => p.needsSettlement);
+        if (aHasSettlement && !bHasSettlement) return -1;
+        if (!aHasSettlement && bHasSettlement) return 1;
+
         if (currentSortBy === 'schedule') {
           const aUp = getNearestUpcomingShowing(a.props);
           const bUp = getNearestUpcomingShowing(b.props);
@@ -714,6 +721,20 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           </span>
         ` : '';
 
+        // 공과금 정산 대상 호수 목록 체크
+        const settlementUnits = complex.props.filter(p => p.needsSettlement);
+        const hasSettlement = settlementUnits.length > 0;
+        const settlementSummaryBadge = hasSettlement ? `
+          <div style="margin-top:6px; display:inline-flex; align-items:center; flex-wrap:wrap; gap:6px; background:#fef3c7; border:1.5px solid #f59e0b; padding:4px 10px; border-radius:8px;">
+            <span style="font-size:12.5px; font-weight:900; color:#b45309;">⚡ 공과금 정산 대상:</span>
+            ${settlementUnits.map(su => `
+              <button type="button" onclick="focusAndHighlightUnit('${su.id}')" style="background:#ffffff; border:1px solid #f59e0b; color:#b45309; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:5px; cursor:pointer;">
+                👉 ${su.bDong && su.bDong !== '0' ? su.bDong + ' ' : ''}${su.ho || '호수미입력'} 바로가기
+              </button>
+            `).join('')}
+          </div>
+        ` : '';
+
         // Group props by building Dong (bDong)
         // bDong: '0' means general villa/single building without specific dong name
         const dongMap = new Map();
@@ -736,20 +757,21 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         const complexBuildingName = complex.building || (complex.props.find(p => p.building)?.building || '');
 
         html += `
-          <div class="complex-card">
+          <div class="complex-card ${hasSettlement ? 'has-utility-settlement' : ''}">
             <!-- Complex Top Header (주소 + 건물명 한 줄 통합 & 주소 클릭 시 지도 연동) -->
             <div class="complex-header">
               <div class="complex-top-row">
                 <div class="complex-addr-title">
-                  <span class="star-bullet">★</span>
+                  <span class="star-bullet" style="${hasSettlement ? 'color:#f59e0b;' : ''}">${hasSettlement ? '⚡' : '★'}</span>
                   <a href="${naverUrl}" target="_blank" class="complex-addr-link" title="터치하면 네이버 지도로 열립니다">
-                    <span class="addr-dong-badge">${complex.dong}</span>
+                    <span class="addr-dong-badge" style="${hasSettlement ? 'background:#d97706;' : ''}">${complex.dong}</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8;">${complex.jibun}</span>
                     ${complexBuildingName ? `<span style="font-size: 15px; font-weight: 800; color: #3b82f6; margin-left: 2px;">(${escapeHtml(complexBuildingName)})</span>` : ''}
                   </a>
                   ${complexBadge}
                 </div>
               </div>
+              ${settlementSummaryBadge}
             </div>
 
             <!-- Building Dong Groups -->
@@ -810,12 +832,24 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
               </span>
             ` : '';
 
+            const isSettlement = (p.needsSettlement === true);
+            const settlementBadge = isSettlement ? `
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 공과금 정산 완료 처리" style="display:inline-flex; align-items:center; gap:3px; background:#f59e0b; color:#ffffff; border:none; font-size:11.5px; font-weight:900; padding:2px 8px; border-radius:5px; cursor:pointer; box-shadow:0 1px 4px rgba(245,158,11,0.3);">
+                ⚡ 공과금 정산중 (완료하기✓)
+              </button>
+            ` : `
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="공과금 정산 대상으로 설정" style="display:inline-flex; align-items:center; gap:2px; background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; font-size:11px; font-weight:700; padding:2px 6px; border-radius:5px; cursor:pointer;">
+                ⚡ 정산등록
+              </button>
+            `;
+
             html += `
-              <div class="unit-card-item">
-                <!-- Unit Header Row (Ho, Door PW, Schedule badge) -->
+              <div class="unit-card-item ${isSettlement ? 'is-utility-settlement' : ''}" id="unitCard_${p.id}">
+                <!-- Unit Header Row (Ho, Door PW, Schedule badge, Settlement badge) -->
                 <div class="unit-header-row">
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <span class="unit-ho-tag" style="${p.ho ? '' : 'background:#eff6ff; color:#1e40af; border-color:#bfdbfe;'}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)}` : '🏢 건물')}</span>
+                  <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
+                    <span class="unit-ho-tag" style="${isSettlement ? 'background:#fef3c7; color:#b45309; border-color:#f59e0b; font-weight:900;' : (p.ho ? '' : 'background:#eff6ff; color:#1e40af; border-color:#bfdbfe;')}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)}` : '🏢 건물')}</span>
+                    ${settlementBadge}
                     ${unitScheduleBadge}
                     ${renderUnitShowingBasketBtn(p.id)}
                   </div>
@@ -1248,6 +1282,43 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       showToast(`🔄 [${session.phone} 손님]이 다시 활성화되었습니다!`);
     }
 
+    /* 공과금 정산 토글 및 포커스 이동 기능 */
+    function toggleSettlementStatus(propId, targetStatus) {
+      const p = properties.find(item => item.id === propId);
+      if (!p) return;
+      p.needsSettlement = (targetStatus !== undefined) ? targetStatus : !p.needsSettlement;
+      saveData();
+      renderApp();
+      if (p.needsSettlement) {
+        showToast(`⚡ [${p.ho || '해당 물건'}] 공과금 정산이 1순위로 등록되었습니다!`);
+      } else {
+        showToast(`✅ [${p.ho || '해당 물건'}] 공과금 정산이 완료되었습니다.`);
+      }
+    }
+
+    function focusAndHighlightUnit(propId) {
+      const unitEl = document.getElementById(`unitCard_${propId}`);
+      if (!unitEl) return;
+      unitEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // 펼쳐져 있지 않다면 자동으로 상세 내용 펼쳐주기
+      const detailEl = document.getElementById(`unitDetail_${propId}`);
+      const btnEl = document.getElementById(`toggleBtn_${propId}`);
+      const arrowEl = document.getElementById(`toggleArrow_${propId}`);
+      if (detailEl && !detailEl.classList.contains('open')) {
+        detailEl.classList.add('open');
+        btnEl?.classList.add('active');
+        if (arrowEl) arrowEl.textContent = '▲ 접기';
+      }
+      // 시각적 펄스 효과
+      unitEl.style.transition = 'transform 0.2s, box-shadow 0.2s';
+      unitEl.style.transform = 'scale(1.02)';
+      unitEl.style.boxShadow = '0 0 0 3px #f59e0b';
+      setTimeout(() => {
+        unitEl.style.transform = 'none';
+        unitEl.style.boxShadow = 'none';
+      }, 1000);
+    }
+
     /* Unit Detail Accordion Toggle Function */
     function toggleUnitDetail(propId) {
       const detailEl = document.getElementById(`unitDetail_${propId}`);
@@ -1325,6 +1396,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       document.getElementById('formTenantName').value = '';
       document.getElementById('formTenantPhone').value = '';
       document.getElementById('formPropMemo').value = '';
+      document.getElementById('formNeedsSettlement').checked = false;
       document.getElementById('formDate').value = '';
       document.getElementById('formTime').value = '';
       document.getElementById('formClientPhone').value = '';
@@ -1450,6 +1522,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       document.getElementById('formTenantName').value = p.tenantName || '';
       document.getElementById('formTenantPhone').value = p.tenantPhone || '';
       document.getElementById('formPropMemo').value = p.propMemo || '';
+      document.getElementById('formNeedsSettlement').checked = (p.needsSettlement === true);
 
       updatePasswordFieldsVisibility();
       openModal('propModal');
@@ -1508,6 +1581,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       const tenantName = document.getElementById('formTenantName').value.trim();
       const tenantPhone = document.getElementById('formTenantPhone').value.trim();
       const propMemo = document.getElementById('formPropMemo').value.trim();
+      const needsSettlement = document.getElementById('formNeedsSettlement').checked;
 
       if (editId) {
         // 기존 물건지 수정
@@ -1525,6 +1599,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
           p.tenantName = tenantName;
           p.tenantPhone = tenantPhone;
           p.propMemo = propMemo;
+          p.needsSettlement = needsSettlement;
 
           // 만약 공동현관 비번이나 건물명을 수정했다면, 같은 지번+동의 다른 호수들에도 동기화 제안/적용
           if (commonPw || building) {
@@ -1546,7 +1621,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       // 신규 물건지 등록
       const newProp = {
         id: 'prop-' + Date.now(),
-        dong, jibun, bDong, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo
+        dong, jibun, bDong, ho, building, commonPw, doorPw, ownerName, ownerPhone, tenantName, tenantPhone, propMemo, needsSettlement
       };
       
       // 같은 지번+동의 다른 호수들이 있으면 공동비번/건물명 자동 동기화
