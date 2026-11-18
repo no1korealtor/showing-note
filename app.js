@@ -834,12 +834,12 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
             const isSettlement = (p.needsSettlement === true);
             const settlementBadge = isSettlement ? `
-              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 공과금 정산 완료 처리" style="display:inline-flex; align-items:center; gap:3px; background:#f59e0b; color:#ffffff; border:none; font-size:11.5px; font-weight:900; padding:2px 8px; border-radius:5px; cursor:pointer; box-shadow:0 1px 4px rgba(245,158,11,0.3);">
-                ⚡ 공과금 정산중 (완료하기✓)
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 공과금 정산 완료 처리" style="display:inline-flex; align-items:center; gap:4px; background:#d97706; color:#ffffff; border:1.5px solid #b45309; font-size:12.5px; font-weight:900; padding:4px 10px; border-radius:6px; cursor:pointer; box-shadow:0 2px 5px rgba(217,119,6,0.35);">
+                ⚡ 공과금 정산중 (완료✓)
               </button>
             ` : `
-              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="공과금 정산 대상으로 설정" style="display:inline-flex; align-items:center; gap:2px; background:#f1f5f9; color:#64748b; border:1px solid #cbd5e1; font-size:11px; font-weight:700; padding:2px 6px; border-radius:5px; cursor:pointer;">
-                ⚡ 정산등록
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="공과금 정산 대상으로 설정" style="display:inline-flex; align-items:center; gap:4px; background:#fffbeb; color:#b45309; border:1.5px solid #f59e0b; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px; cursor:pointer; box-shadow:0 1px 3px rgba(245,158,11,0.15);">
+                ⚡ 공과금 정산
               </button>
             `;
 
