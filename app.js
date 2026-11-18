@@ -709,6 +709,34 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
       // RENDER ALL COMPLEXES
       let html = '';
+
+      // 검색어가 입력되어 있는 경우: 검색어 기반 즉시 새 매물 등록 배너 추가!
+      const rawSearchWord = document.getElementById('searchInput').value.trim();
+      if (rawSearchWord) {
+        const targetDong = (currentDongFilter !== 'ALL' && currentDongFilter !== 'ARCHIVED') ? currentDongFilter : (settings.dongs[0] || '');
+        const escapedWord = escapeHtml(rawSearchWord);
+        // 만약 숫자로만 끝나는 경우 자동으로 '-'를 붙여주어 편리하게 완성하도록 유도
+        const presetJibun = /^\d+$/.test(rawSearchWord) ? `${rawSearchWord}-` : rawSearchWord;
+        const escapedPresetJibun = escapeHtml(presetJibun);
+
+        html += `
+          <div style="background:#eff6ff; border:1.5px dashed #3b82f6; border-radius:12px; padding:11px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 2px 6px rgba(59,130,246,0.08);">
+            <div style="min-width:0;">
+              <div style="font-size:13px; font-weight:800; color:#1d4ed8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                찾으시는 물건이 목록에 없나요?
+              </div>
+              <div style="font-size:12px; color:#475569; margin-top:2px;">
+                <b style="color:#2563eb;">[${targetDong ? escapeHtml(targetDong) + ' ' : ''}${escapedPresetJibun}]</b> 주소로 바로 등록
+              </div>
+            </div>
+            <button type="button" onclick="openNewPropertyModal('${escapeHtml(targetDong)}', '${escapedPresetJibun}')" style="background:#2563eb; color:#ffffff; border:none; padding:7px 12px; border-radius:8px; font-size:12.5px; font-weight:800; cursor:pointer; flex-shrink:0; box-shadow:0 2px 6px rgba(37,99,235,0.25); display:inline-flex; align-items:center; gap:4px;">
+              <span>➕</span>
+              <span>새 매물 등록</span>
+            </button>
+          </div>
+        `;
+      }
+
       complexList.forEach(complex => {
         const fullAddr = `${settings.baseDistrict} ${complex.dong} ${complex.jibun}`;
         const naverUrl = `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(fullAddr)}`;
