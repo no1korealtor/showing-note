@@ -725,10 +725,10 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
         const settlementUnits = complex.props.filter(p => p.needsSettlement);
         const hasSettlement = settlementUnits.length > 0;
         const settlementSummaryBadge = hasSettlement ? `
-          <div style="margin-top:6px; display:inline-flex; align-items:center; flex-wrap:wrap; gap:6px; background:#fef3c7; border:1.5px solid #f59e0b; padding:4px 10px; border-radius:8px;">
-            <span style="font-size:12.5px; font-weight:900; color:#b45309;">⚡ 공과금 정산 대상:</span>
+          <div style="margin-top:6px; display:inline-flex; align-items:center; flex-wrap:wrap; gap:6px; background:#ede9fe; border:1px solid #c4b5fd; padding:4px 10px; border-radius:8px;">
+            <span style="font-size:12px; font-weight:800; color:#5b21b6;">⚡ 공과금 정산 대상:</span>
             ${settlementUnits.map(su => `
-              <button type="button" onclick="focusAndHighlightUnit('${su.id}')" style="background:#ffffff; border:1px solid #f59e0b; color:#b45309; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:5px; cursor:pointer;">
+              <button type="button" onclick="focusAndHighlightUnit('${su.id}')" style="background:#ffffff; border:1px solid #a78bfa; color:#6d28d9; font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:5px; cursor:pointer;">
                 👉 ${su.bDong && su.bDong !== '0' ? su.bDong + ' ' : ''}${su.ho || '호수미입력'} 바로가기
               </button>
             `).join('')}
@@ -762,9 +762,9 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
             <div class="complex-header">
               <div class="complex-top-row">
                 <div class="complex-addr-title">
-                  <span class="star-bullet" style="${hasSettlement ? 'color:#f59e0b;' : ''}">${hasSettlement ? '⚡' : '★'}</span>
+                  <span class="star-bullet" style="${hasSettlement ? 'color:#6366f1;' : ''}">${hasSettlement ? '⚡' : '★'}</span>
                   <a href="${naverUrl}" target="_blank" class="complex-addr-link" title="터치하면 네이버 지도로 열립니다">
-                    <span class="addr-dong-badge" style="${hasSettlement ? 'background:#d97706;' : ''}">${complex.dong}</span>
+                    <span class="addr-dong-badge" style="${hasSettlement ? 'background:#4f46e5;' : ''}">${complex.dong}</span>
                     <span style="text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8;">${complex.jibun}</span>
                     ${complexBuildingName ? `<span style="font-size: 15px; font-weight: 800; color: #3b82f6; margin-left: 2px;">(${escapeHtml(complexBuildingName)})</span>` : ''}
                   </a>
@@ -834,11 +834,11 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
 
             const isSettlement = (p.needsSettlement === true);
             const settlementBadge = isSettlement ? `
-              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 공과금 정산 완료 처리" style="display:inline-flex; align-items:center; gap:4px; background:#d97706; color:#ffffff; border:1.5px solid #b45309; font-size:12.5px; font-weight:900; padding:4px 10px; border-radius:6px; cursor:pointer; box-shadow:0 2px 5px rgba(217,119,6,0.35);">
-                ⚡ 공과금 정산중 (완료✓)
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', false)" title="클릭 시 공과금 정산 완료 처리" style="display:inline-flex; align-items:center; gap:4px; background:#4f46e5; color:#ffffff; border:1px solid #4338ca; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px; cursor:pointer; box-shadow:0 2px 5px rgba(79,70,229,0.25);">
+                ⚡ 정산중 (완료하기✓)
               </button>
             ` : `
-              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="공과금 정산 대상으로 설정" style="display:inline-flex; align-items:center; gap:4px; background:#fffbeb; color:#b45309; border:1.5px solid #f59e0b; font-size:12px; font-weight:800; padding:3px 9px; border-radius:6px; cursor:pointer; box-shadow:0 1px 3px rgba(245,158,11,0.15);">
+              <button type="button" onclick="toggleSettlementStatus('${p.id}', true)" title="공과금 정산 대상으로 설정" style="display:inline-flex; align-items:center; gap:3px; background:#f5f3ff; color:#5b21b6; border:1px solid #ddd6fe; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px; cursor:pointer;">
                 ⚡ 공과금 정산
               </button>
             `;
@@ -848,7 +848,7 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
                 <!-- Unit Header Row (Ho, Door PW, Schedule badge, Settlement badge) -->
                 <div class="unit-header-row">
                   <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px;">
-                    <span class="unit-ho-tag" style="${isSettlement ? 'background:#fef3c7; color:#b45309; border-color:#f59e0b; font-weight:900;' : (p.ho ? '' : 'background:#eff6ff; color:#1e40af; border-color:#bfdbfe;')}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)}` : '🏢 건물')}</span>
+                    <span class="unit-ho-tag" style="${isSettlement ? 'background:#ede9fe; color:#4c1d95; border-color:#c4b5fd; font-weight:900;' : (p.ho ? '' : 'background:#eff6ff; color:#1e40af; border-color:#bfdbfe;')}">${p.ho ? `🚪 ${escapeHtml(p.ho)}` : (isRealDong ? `🏢 ${escapeHtml(bDong)}` : '🏢 건물')}</span>
                     ${settlementBadge}
                     ${unitScheduleBadge}
                     ${renderUnitShowingBasketBtn(p.id)}
@@ -1301,10 +1301,10 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       if (!unitEl) return;
       unitEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
-      // 불필요한 상세 서랍 펼침 없이, 해당 호수 카드만 깔끔하게 시각적 강조
+      // 불필요한 상세 서랍 펼침 없이, 해당 호수 카드만 차분하고 세련되게 시각적 강조
       unitEl.style.transition = 'transform 0.25s, box-shadow 0.25s, background-color 0.25s';
       unitEl.style.transform = 'scale(1.02)';
-      unitEl.style.boxShadow = '0 0 0 3px #f59e0b';
+      unitEl.style.boxShadow = '0 0 0 3px #818cf8';
       setTimeout(() => {
         unitEl.style.transform = 'none';
         unitEl.style.boxShadow = 'none';
