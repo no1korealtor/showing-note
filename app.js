@@ -1300,23 +1300,15 @@ const STORAGE_KEY_SETTINGS = 'showing_diary_settings';
       const unitEl = document.getElementById(`unitCard_${propId}`);
       if (!unitEl) return;
       unitEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // 펼쳐져 있지 않다면 자동으로 상세 내용 펼쳐주기
-      const detailEl = document.getElementById(`unitDetail_${propId}`);
-      const btnEl = document.getElementById(`toggleBtn_${propId}`);
-      const arrowEl = document.getElementById(`toggleArrow_${propId}`);
-      if (detailEl && !detailEl.classList.contains('open')) {
-        detailEl.classList.add('open');
-        btnEl?.classList.add('active');
-        if (arrowEl) arrowEl.textContent = '▲ 접기';
-      }
-      // 시각적 펄스 효과
-      unitEl.style.transition = 'transform 0.2s, box-shadow 0.2s';
+      
+      // 불필요한 상세 서랍 펼침 없이, 해당 호수 카드만 깔끔하게 시각적 강조
+      unitEl.style.transition = 'transform 0.25s, box-shadow 0.25s, background-color 0.25s';
       unitEl.style.transform = 'scale(1.02)';
       unitEl.style.boxShadow = '0 0 0 3px #f59e0b';
       setTimeout(() => {
         unitEl.style.transform = 'none';
         unitEl.style.boxShadow = 'none';
-      }, 1000);
+      }, 1200);
     }
 
     /* Unit Detail Accordion Toggle Function */
